@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.rookit.parser.result;
 
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +40,7 @@ import org.rookit.dm.track.TypeVersion;
 import org.rookit.dm.track.VersionTrack;
 import org.rookit.parser.parser.TrackFormat;
 import org.rookit.parser.utils.ParserValidator;
+import org.rookit.parser.utils.TrackPath;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -85,7 +85,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	private Set<Artist> mainArtists;
 	private Set<Artist> features;
 	private Set<Artist> producers;
-	private Path path;
+	private TrackPath path;
 	private String disc;
 	private Integer number;
 	private byte[] cover;
@@ -157,12 +157,12 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		return this;
 	}
 	
-	public SingleTrackAlbumBuilder withPath(Path path) {
+	public SingleTrackAlbumBuilder withPath(TrackPath path) {
 		this.path = path;
 		return this;
 	}
 
-	public Path getPath() {
+	public TrackPath getPath() {
 		return path;
 	}
 
@@ -345,7 +345,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 
 	private void fillPaths(Track track) {
 		if(path != null) {
-			track.getPath().attachFile(path);
+			track.getPath().attachFile(path.getAbsolutePath());
 		}
 	}
 
