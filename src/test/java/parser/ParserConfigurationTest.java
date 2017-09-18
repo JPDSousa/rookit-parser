@@ -97,7 +97,8 @@ public class ParserConfigurationTest {
 	@Test
 	public final void testDbStorage() {
 		final boolean store = true;
-		config.withDbStorage(store);
+		config.withDbStorage(store)
+		.withDBConnection(new DumbDB());
 		assertEquals(store, config.isStoreDB());
 	}
 	
