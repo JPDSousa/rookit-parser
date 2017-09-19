@@ -43,7 +43,6 @@ import org.rookit.dm.track.Track;
 import org.rookit.parser.parser.Field;
 import org.rookit.parser.parser.Parser;
 import org.rookit.parser.parser.ParserConfiguration;
-import org.rookit.parser.parser.ParserFactory;
 import org.rookit.parser.parser.TrackFormat;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
 import org.rookit.parser.utils.TrackPath;
@@ -53,20 +52,10 @@ import org.smof.gridfs.SmofGridRef;
 public class ParserConfigurationTest {
 
 	private static ParserConfiguration<TrackPath, SingleTrackAlbumBuilder> config;
-	private static final ParserFactory FACTORY = ParserFactory.create();
 	
 	@Before
 	public void setUp() {
 		config = Parser.createConfiguration(SingleTrackAlbumBuilder.class);
-	}
-
-	@Test
-	public final void testBaseParser() {
-		final Parser<TrackPath, SingleTrackAlbumBuilder> parser = FACTORY.newTagParserWithDefaultConfiguration();
-		config.withBaseParser(parser);
-		assertEquals(parser, config.getBaseParser());
-		//test null parser (allowed)
-		config.withBaseParser(null);
 	}
 	
 	@Test

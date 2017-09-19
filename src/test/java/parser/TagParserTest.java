@@ -55,17 +55,6 @@ public class TagParserTest {
 	}
 
 	/**
-	 * Test method for {@link parsers.AbstractParser#setDBStorage(boolean)}.
-	 */
-	@Test
-	public final void testGetDBStorage() {
-		final ParserConfiguration<TrackPath, SingleTrackAlbumBuilder> config = Parser.createConfiguration(SingleTrackAlbumBuilder.class);
-		config.withDbStorage(true);
-		parser = PARSER_FACTORY.newTagParser(config);
-		assertEquals(true, parser.getDBStorage());
-	}
-
-	/**
 	 * Test method for {@link parsers.TagParser#parse(TrackPath)}.
 	 */
 	@Test

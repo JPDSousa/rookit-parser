@@ -41,7 +41,6 @@ import org.rookit.parser.parser.ParserConfiguration;
 import org.rookit.parser.parser.ParserFactory;
 import org.rookit.parser.parser.TrackFormat;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
-import org.rookit.parser.utils.TrackPath;
 
 import com.google.common.collect.Iterables;
 
@@ -67,22 +66,13 @@ public class FormatParserTest {
 	
 	@Before
 	public void before() {
-		final ParserConfiguration<TrackPath, SingleTrackAlbumBuilder> config = Parser.createConfiguration(SingleTrackAlbumBuilder.class);
+		final ParserConfiguration<String, SingleTrackAlbumBuilder> config = Parser.createConfiguration(SingleTrackAlbumBuilder.class);
 		config.withDBConnection(db)
-		//.withBaseParser(PARSER_FACTORY.newTagParserWithDefaultConfiguration())
 		.withDbStorage(false)
 		.withRequiredFields(Field.getRequiredFields())
 		.withSetDate(true)
 		.withTrackFormats(TestUtils.getTestFormats());
 		parser = parserFactory.newFormatParser(config);
-	}
-	
-	@Test
-	public void testDBStorage() {
-		final ParserConfiguration<TrackPath, SingleTrackAlbumBuilder> config = Parser.createConfiguration(SingleTrackAlbumBuilder.class);
-		config.withDbStorage(true);
-		parser = parserFactory.newFormatParser(config);
-		assertEquals(true, parser.getDBStorage());
 	}
 	
 	@Test
@@ -94,10 +84,11 @@ public class FormatParserTest {
 
 	@Test
 	public final void testMultiparse() {
-		final TrackPath trackPath = TestUtils.getRandomTrackPath();
-		final List<SingleTrackAlbumBuilder> results = parser.multiparse(trackPath);
+		// TODO enhance test
+		final String input = "Artist1 - Track1 (feat. Artist2)";
+		final List<SingleTrackAlbumBuilder> results = parser.multiparse(input);
 		assertNotNull(results);
-		System.out.println(trackPath);
+		System.out.println(input);
 		for(SingleTrackAlbumBuilder result : results) {
 			System.out.println(result.getFormat());
 			System.out.println("Score: " + result.getScore());

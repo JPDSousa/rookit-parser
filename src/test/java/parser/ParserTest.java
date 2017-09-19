@@ -31,12 +31,6 @@ import org.rookit.parser.result.Result;
 
 @SuppressWarnings("javadoc")
 public class ParserTest {
-
-	public static void testGeneralParser(Parser<?, ?> parser) {
-		final boolean dbStorage = true;
-		parser.setDBStorage(dbStorage);
-		assertEquals(dbStorage, parser.getDBStorage());
-	}
 	
 	@Test
 	public final void testCreateConfig() {
