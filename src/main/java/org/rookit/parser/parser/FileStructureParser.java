@@ -93,7 +93,7 @@ public class FileStructureParser extends AbstractParser<TrackPath, SingleTrackAl
 	}
 
 	@Override
-	public SingleTrackAlbumBuilder parse(TrackPath trackPath, SingleTrackAlbumBuilder baseResult) {
+	protected SingleTrackAlbumBuilder parseFromBaseResult(TrackPath trackPath, SingleTrackAlbumBuilder baseResult) {
 		final ArtistFactory artistFactory = ArtistFactory.getDefault();
 		final String albumName;
 		final String artistName;

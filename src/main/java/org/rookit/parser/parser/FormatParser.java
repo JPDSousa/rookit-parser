@@ -37,14 +37,13 @@ import org.rookit.parser.exceptions.MissingRequiredFieldException;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
 import org.rookit.parser.utils.FormatSong;
 import org.rookit.parser.utils.PathUtils;
-import org.rookit.parser.utils.TrackPath;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 
 @SuppressWarnings("javadoc")
-public class FormatParser extends AbstractParser<TrackPath, SingleTrackAlbumBuilder> implements Multiparser<TrackPath, SingleTrackAlbumBuilder> {
+public class FormatParser extends AbstractParser<String, SingleTrackAlbumBuilder> implements Multiparser<String, SingleTrackAlbumBuilder> {
 
 	private static final String[][] ENHANCEMENTS = {/*{"_", " "},*/
 			{"  ", " "},
@@ -73,11 +72,11 @@ public class FormatParser extends AbstractParser<TrackPath, SingleTrackAlbumBuil
 		}
 	}
 
-	static FormatParser create(ParserConfiguration<TrackPath, SingleTrackAlbumBuilder> configuration) {
+	static FormatParser create(ParserConfiguration<String, SingleTrackAlbumBuilder> configuration) {
 		return new FormatParser(configuration);
 	}
 
-	private FormatParser(ParserConfiguration<TrackPath, SingleTrackAlbumBuilder> config){
+	private FormatParser(ParserConfiguration<String, SingleTrackAlbumBuilder> config){
 		super(config);
 	}
 
@@ -90,7 +89,7 @@ public class FormatParser extends AbstractParser<TrackPath, SingleTrackAlbumBuil
 		}
 	}
 
-	private String enhanceFileName(String originalName){
+	private String enhanceInput(String originalName){
 		String name = originalName;
 		for(String[] enhancement : ENHANCEMENTS){
 			name = name.replace(enhancement[0], enhancement[1]);
@@ -99,13 +98,13 @@ public class FormatParser extends AbstractParser<TrackPath, SingleTrackAlbumBuil
 	}
 
 	@Override
-	protected SingleTrackAlbumBuilder parse(TrackPath token, SingleTrackAlbumBuilder baseResult) {
+	protected SingleTrackAlbumBuilder parseFromBaseResult(String token, SingleTrackAlbumBuilder baseResult) {
 		return multiparse(token, baseResult).get(0);
 	}
 
 	@Override
-	public List<SingleTrackAlbumBuilder> multiparse(TrackPath path){
-		final SingleTrackAlbumBuilder builder = getResults(path);
+	public List<SingleTrackAlbumBuilder> multiparse(String path){
+		final SingleTrackAlbumBuilder builder = createEmptyResult();
 		final List<SingleTrackAlbumBuilder> results =  multiparse(path, builder);
 		final int limit = getConfig().getLimit();
 		if(limit > 0 && limit < results.size()) {
@@ -114,27 +113,19 @@ public class FormatParser extends AbstractParser<TrackPath, SingleTrackAlbumBuil
 		return results;
 	}
 
-	private List<SingleTrackAlbumBuilder> multiparse(TrackPath path, SingleTrackAlbumBuilder baseResult) {
-		final String fileName = enhanceFileName(PathUtils.getFileName(path));
-		if(baseResult == null) {
-			return Lists.newArrayList();
-		}
-
-		return multiparse(fileName, baseResult);
-	}
-
-	private List<SingleTrackAlbumBuilder> multiparse(String pathName, SingleTrackAlbumBuilder baseResult) {
+	private List<SingleTrackAlbumBuilder> multiparse(String input, SingleTrackAlbumBuilder baseResult) {
+		final String enhancedInput = enhanceInput(input);
 		final List<SingleTrackAlbumBuilder> results = Lists.newArrayList();
 		final List<TrackFormat> formats = getConfig().getFormats();
 		formats.forEach(f -> validateRequiredFields(f));
 
 		for(TrackFormat format : getConfig().getFormats()) {
 			final SingleTrackAlbumBuilder clone = SingleTrackAlbumBuilder.create(baseResult);
-			final SingleTrackAlbumBuilder result = parse(pathName, format, clone); 
+			final SingleTrackAlbumBuilder result = parse(enhancedInput, format, clone); 
 			if(result != null) {
 				results.add(result);
 			}
-			log(pathName, format, result != null);
+			log(enhancedInput, format, result != null);
 		}
 		Collections.sort(results);
 		return results;
@@ -148,18 +139,6 @@ public class FormatParser extends AbstractParser<TrackPath, SingleTrackAlbumBuil
 				.append("' with: ")
 				.append(format);
 		VALIDATOR.info(builder.toString());
-	}
-
-	public SingleTrackAlbumBuilder parse(String pathName, SingleTrackAlbumBuilder baseResult) {
-		return multiparse(pathName, baseResult).get(0);
-	}
-
-	private SingleTrackAlbumBuilder getResults(TrackPath path) {
-		final Parser<TrackPath, SingleTrackAlbumBuilder> baseParser = getConfig().getBaseParser();
-		if(baseParser == null) {
-			return SingleTrackAlbumBuilder.create();
-		}
-		return baseParser.parse(path);
 	}
 
 	private SingleTrackAlbumBuilder parse(String pathName, TrackFormat format, SingleTrackAlbumBuilder track) {

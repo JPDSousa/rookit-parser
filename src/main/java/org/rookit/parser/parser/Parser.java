@@ -30,8 +30,7 @@ public interface Parser<T, R extends Result<?>> {
 		return ParserConfiguration.create(resultClass);
 	}
 	
-	void setDBStorage(boolean store);
-	boolean getDBStorage();
+	<O extends Result<?>> R parse(T token, O baseResult);
 	
 	R parse(T token);
 	

@@ -57,7 +57,7 @@ public class TagParser extends AbstractParser<TrackPath, SingleTrackAlbumBuilder
 	}
 
 	@Override
-	protected SingleTrackAlbumBuilder parse(TrackPath path, SingleTrackAlbumBuilder track) {
+	protected SingleTrackAlbumBuilder parseFromBaseResult(TrackPath path, SingleTrackAlbumBuilder track) {
 		final Mp3File mp3;
 		try {
 			isSuspicious(path.getPath());

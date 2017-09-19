@@ -29,49 +29,35 @@ abstract class AbstractParser<T, R extends Result<?>> implements Parser<T, R> {
 
 	protected static final ParserValidator VALIDATOR = ParserValidator.getDefault();
 	
-	private boolean dbStorage;
-	
 	private final ParserConfiguration<T, R> config;
+	private final ResultFactory resultFactory;
 	
 	protected AbstractParser(ParserConfiguration<T, R> config){
-		this.dbStorage = true;
 		this.config = config;
-	}
-
-	@Override
-	public void setDBStorage(boolean store) {
-		this.dbStorage = store;
-	}
-
-	@Override
-	public boolean getDBStorage() {
-		return dbStorage;
+		this.resultFactory = ResultFactory.getDefault(); 
 	}
 	
 	protected final ParserConfiguration<T, R> getConfig() {
 		return config;
 	}
 	
-	protected abstract R parse(T token, R baseResult);
+	protected final R createEmptyResult() {
+		final Class<R> resultClass = config.getResultClass();
+		return resultFactory.newResult(resultClass);
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public <R1 extends Result<?>> R parse(T token, R1 baseResult) {
+		VALIDATOR.checkArgumentClass(config.getResultClass(), baseResult.getClass(), "Invalid base result class");
+		return parseFromBaseResult(token, (R) baseResult);
+	}
+	
+	protected abstract R parseFromBaseResult(T token, R baseResult);
 	
 	@Override
 	public final R parse(T token) {
-		final Parser<T, R> baseParser = config.getBaseParser();
-		final ResultFactory factory = ResultFactory.getDefault();
-		final Class<R> resultClass = config.getResultClass();
-		
-		if(baseParser != null) {
-			return parseFromBaseParser(token, baseParser);
-		}
-		return parse(token, factory.newResult(resultClass));
-	}
-
-	private R parseFromBaseParser(T token, Parser<T, R> baseParser) {
-		final R baseResult = baseParser.parse(token);
-		if(baseResult == null) {
-			return null;
-		}
-		return parse(token, baseParser.parse(token));
+		return parseFromBaseResult(token, createEmptyResult());
 	}
 
 	@Override

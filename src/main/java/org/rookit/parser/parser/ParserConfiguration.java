@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.rookit.parser.parser;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.rookit.database.DBManager;
@@ -39,7 +38,6 @@ public class ParserConfiguration<T, R extends Result<?>> {
 	}
 	
 	private final Class<R> resultClass;
-	private Parser<T, R> baseParser;
 	private boolean setDate;
 	private Field[] requiredFields;
 	private List<TrackFormat> formats;
@@ -52,11 +50,6 @@ public class ParserConfiguration<T, R extends Result<?>> {
 		this.resultClass = resultClass;
 		this.setDate = true;
 		this.storeDB = true;
-	}
-	
-	public ParserConfiguration<T, R> withBaseParser(Parser<T, R> parser) {
-		this.baseParser = parser;
-		return this;
 	}
 	
 	public ParserConfiguration<T, R> withDBConnection(DBManager connection) {
@@ -87,10 +80,6 @@ public class ParserConfiguration<T, R extends Result<?>> {
 	public ParserConfiguration<T, R> withLimit(int limit) {
 		this.limit = limit;
 		return this;
-	}
-
-	public Parser<T, R> getBaseParser() {
-		return baseParser;
 	}
 
 	public Class<R> getResultClass() {
@@ -125,12 +114,7 @@ public class ParserConfiguration<T, R extends Result<?>> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((baseParser == null) ? 0 : baseParser.hashCode());
-		result = prime * result + ((database == null) ? 0 : database.hashCode());
-		result = prime * result + ((formats == null) ? 0 : formats.hashCode());
-		result = prime * result + Arrays.hashCode(requiredFields);
-		result = prime * result + (setDate ? 1231 : 1237);
-		result = prime * result + (storeDB ? 1231 : 1237);
+		result = prime * result + ((resultClass == null) ? 0 : resultClass.hashCode());
 		return result;
 	}
 
@@ -146,34 +130,11 @@ public class ParserConfiguration<T, R extends Result<?>> {
 			return false;
 		}
 		ParserConfiguration<?, ?> other = (ParserConfiguration<?, ?>) obj;
-		if (baseParser == null) {
-			if (other.baseParser != null) {
+		if (resultClass == null) {
+			if (other.resultClass != null) {
 				return false;
 			}
-		} else if (!baseParser.equals(other.baseParser)) {
-			return false;
-		}
-		if (database == null) {
-			if (other.database != null) {
-				return false;
-			}
-		} else if (!database.equals(other.database)) {
-			return false;
-		}
-		if (formats == null) {
-			if (other.formats != null) {
-				return false;
-			}
-		} else if (!formats.equals(other.formats)) {
-			return false;
-		}
-		if (!Arrays.equals(requiredFields, other.requiredFields)) {
-			return false;
-		}
-		if (setDate != other.setDate) {
-			return false;
-		}
-		if (storeDB != other.storeDB) {
+		} else if (!resultClass.equals(other.resultClass)) {
 			return false;
 		}
 		return true;
