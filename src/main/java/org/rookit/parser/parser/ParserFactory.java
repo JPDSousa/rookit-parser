@@ -24,6 +24,7 @@ package org.rookit.parser.parser;
 import java.util.List;
 
 import org.rookit.database.DBManager;
+import org.rookit.parser.result.Result;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
 import org.rookit.parser.utils.TrackPath;
 
@@ -36,8 +37,21 @@ public class ParserFactory {
 	
 	private ParserFactory() {}
 
-	private ParserConfiguration<TrackPath, SingleTrackAlbumBuilder> getDefaultConfig() {
+	private ParserConfiguration<TrackPath, SingleTrackAlbumBuilder> getDefaultTrackPathConfig() {
 		return Parser.createConfiguration(SingleTrackAlbumBuilder.class);
+	}
+	
+	private ParserConfiguration<String, SingleTrackAlbumBuilder> getDefaultStringConfig() {
+		return Parser.createConfiguration(SingleTrackAlbumBuilder.class);
+	}
+	
+	@SuppressWarnings("unused")
+	public <I, O extends Result<?>> ParserPipeline<I, I, O> newParserPipeline(Class<I> inputClass, O baseResult) {
+		return new BottomParserPipeline<I, O>(baseResult);
+	}
+	
+	public <I, O extends Result<?>> ParserPipeline<I, I, O> newParserPipeline(O baseResult) {
+		return new BottomParserPipeline<>(baseResult);
 	}
 
 	public TagParser newTagParser(ParserConfiguration<TrackPath, SingleTrackAlbumBuilder> config) {
@@ -45,35 +59,27 @@ public class ParserFactory {
 	}
 	
 	public TagParser newTagParserWithDefaultConfiguration() {
-		return newTagParser(getDefaultConfig());
-	}
-
-	public TagParser newTagParserWithBaseParser(Parser<TrackPath, SingleTrackAlbumBuilder> baseParser) {
-		return newTagParser(getDefaultConfig().withBaseParser(baseParser));
+		return newTagParser(getDefaultTrackPathConfig());
 	}
 	
 	public TagParser newTagParserWithDbConnection(DBManager connection) {
-		return newTagParser(getDefaultConfig().withDBConnection(connection));
+		return newTagParser(getDefaultTrackPathConfig().withDBConnection(connection));
 	}
 	
-	public FormatParser newFormatParser(ParserConfiguration<TrackPath, SingleTrackAlbumBuilder> config) {
+	public FormatParser newFormatParser(ParserConfiguration<String, SingleTrackAlbumBuilder> config) {
 		return FormatParser.create(config);
 	}
 	
 	public FormatParser newFormatParserWithDefaultConfiguration() {
-		return newFormatParser(getDefaultConfig());
-	}
-	
-	public FormatParser newFormatParserWithBaseParser(Parser<TrackPath, SingleTrackAlbumBuilder> baseParser) {
-		return newFormatParser(getDefaultConfig().withBaseParser(baseParser));
+		return newFormatParser(getDefaultStringConfig());
 	}
 	
 	public FormatParser newFormatParserWithDbConnection(DBManager connection) {
-		return newFormatParser(getDefaultConfig().withDBConnection(connection));
+		return newFormatParser(getDefaultStringConfig().withDBConnection(connection));
 	}
 	
 	public FormatParser newFormatParserWithTrackFormats(List<TrackFormat> formats) {
-		return newFormatParser(getDefaultConfig().withTrackFormats(formats));
+		return newFormatParser(getDefaultStringConfig().withTrackFormats(formats));
 	}
 	
 	public FileStructureParser newFileStructureParser(ParserConfiguration<TrackPath, SingleTrackAlbumBuilder> config) {
@@ -81,14 +87,10 @@ public class ParserFactory {
 	}
 	
 	public FileStructureParser newFileStructureParserWithDefaultConfiguration() {
-		return newFileStructureParser(getDefaultConfig());
-	}
-	
-	public FileStructureParser newFileStructureParserWithBaseParser(Parser<TrackPath, SingleTrackAlbumBuilder> parser) {
-		return newFileStructureParser(getDefaultConfig().withBaseParser(parser));
+		return newFileStructureParser(getDefaultTrackPathConfig());
 	}
 	
 	public FileStructureParser newFileStructureParserWithDbConnection(DBManager connection) {
-		return newFileStructureParser(getDefaultConfig().withDBConnection(connection));
+		return newFileStructureParser(getDefaultTrackPathConfig().withDBConnection(connection));
 	}
 }
