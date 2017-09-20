@@ -19,7 +19,11 @@ public class TestUtils {
 	public static final Path RESOURCES_TRACKS_UNPARSED = RESOURCES_TRACKS.resolve("unparsed");
 	public static final Path RESOURCES_TRACKS_UNPARSED_FORMATS = RESOURCES_TRACKS_UNPARSED.resolve("formats.txt");
 	
-	public static final TrackPath[] TRACK_PATHS = {};
+	public static final TrackPath[] TRACK_PATHS = {
+			TrackPath.create(RESOURCES_TRACKS_UNPARSED.resolve("Afterlight.mp3")),
+			TrackPath.create(RESOURCES_TRACKS_UNPARSED.resolve("Helium.mp3")),
+			TrackPath.create(RESOURCES_TRACKS_UNPARSED.resolve("Help.mp3"))
+	};
 	
 	public static final List<TrackFormat> getTestFormats() {
 		final FormatList list = FormatListManager.getManager().get(RESOURCES_TRACKS_UNPARSED_FORMATS);
