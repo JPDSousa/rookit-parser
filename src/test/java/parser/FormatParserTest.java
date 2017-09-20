@@ -30,7 +30,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.rookit.database.DBManager;
 import org.rookit.dm.track.Track;
 import org.rookit.dm.utils.PrintUtils;
 import org.rookit.parser.exceptions.InvalidSongFormatException;
@@ -52,23 +51,15 @@ public class FormatParserTest {
 	private static ParserFactory parserFactory;
 	private static FormatParser parser;
 	
-	private static final String HOST = "localhost";
-	private static final int PORT = 27020;
-	private static final String DB_NAME = "rookit_parser_test";
-	
-	private static DBManager db;
-	
 	@BeforeClass
 	public static void setUp() {
 		parserFactory = ParserFactory.create();
-		db = DBManager.open(HOST, PORT, DB_NAME);
 	}
 	
 	@Before
 	public void before() {
 		final ParserConfiguration<String, SingleTrackAlbumBuilder> config = Parser.createConfiguration(SingleTrackAlbumBuilder.class);
-		config.withDBConnection(db)
-		.withDbStorage(false)
+		config.withDbStorage(false)
 		.withRequiredFields(Field.getRequiredFields())
 		.withSetDate(true)
 		.withTrackFormats(TestUtils.getTestFormats());
@@ -84,7 +75,6 @@ public class FormatParserTest {
 
 	@Test
 	public final void testMultiparse() {
-		// TODO enhance test
 		final String input = "Artist1 - Track1 (feat. Artist2)";
 		final List<SingleTrackAlbumBuilder> results = parser.multiparse(input);
 		assertNotNull(results);
