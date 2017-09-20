@@ -100,7 +100,7 @@ public class SingleTrackAlbumBuilderTest {
 		assertEquals(version, builder.getTypeVersion());
 	}
 	
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public final void testMultipleVersions() {
 		guineaPig.withTypeVersion(FACTORY.getRandomVersionType());
 	}
@@ -145,7 +145,7 @@ public class SingleTrackAlbumBuilderTest {
 		assertEquals(mainArtists, track.getMainArtists());
 		assertEquals(features, track.getFeatures());
 		assertEquals(producers, track.getProducers());
-		assertEquals(path, track.getPath());
+		assertEquals(path.getPath(), track.getPath().getAttachedFile());
 		assertNotNull(album.getTrack(disc, number));
 		assertEquals(cover, album.getCover());
 		assertEquals(date, album.getReleaseDate());
