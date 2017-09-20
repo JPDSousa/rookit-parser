@@ -119,7 +119,6 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	}
 
 	public SingleTrackAlbumBuilder withTypeVersion(TypeVersion versionType) {
-		VALIDATOR.checkArgumentNotNull(versionType, "Multiple type versions");
 		this.versionType = versionType;
 		return this;
 	}
