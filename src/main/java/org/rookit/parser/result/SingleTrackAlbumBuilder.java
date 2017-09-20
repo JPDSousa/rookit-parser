@@ -344,7 +344,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 
 	private void fillPaths(Track track) {
 		if(path != null) {
-			track.getPath().attachFile(path.getAbsolutePath());
+			track.getPath().attachFile(path.getPath());
 		}
 	}
 
