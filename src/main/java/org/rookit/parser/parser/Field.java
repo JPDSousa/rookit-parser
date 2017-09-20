@@ -130,7 +130,7 @@ public enum Field {
 					break;
 				}
 			}
-			if(isValid > 0) {
+			if(isValid > 0 && context.isStoreDB()) {
 				dbScore = db.getArtists()
 						.withName(value)
 						.first() != null ? 10 : -1;
@@ -224,9 +224,15 @@ public enum Field {
 		@Override
 		public int getScore(String value, ParserConfiguration<?, ?> context) {
 			final DBManager db = context.getDBConnection();
-			final int dbScore = db.getGenres()
-					.withName(value)
-					.first() != null ? 10 : -1;
+			final int dbScore;
+			if(context.isStoreDB()) {
+				dbScore = db.getGenres()
+						.withName(value)
+						.first() != null ? 10 : -1;
+			}
+			else {
+				dbScore = 0;
+			}
 			return getScore()+dbScore;
 		}
 	},
