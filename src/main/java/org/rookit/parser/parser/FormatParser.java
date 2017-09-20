@@ -281,41 +281,45 @@ public class FormatParser extends AbstractParser<String, SingleTrackAlbumBuilder
 
 		private Tokenizer() {
 			map = Maps.newLinkedHashMap();
-			Arrays.stream(Field.values()).forEach(f -> map.put(f, Lists.newArrayList()));
 			valid = true;
 		}
 
 		private void merge(Tokenizer tokenizer) {
-			if(!tokenizer.valid) {
-				valid = false;
-			}
-			else {
+			if(tokenizer.valid) {
 				for(Field field : tokenizer.map.keySet()) {
-					map.get(field).addAll(tokenizer.map.get(field));
+					get(field).addAll(tokenizer.map.get(field));
 				}
 			}
+		}
+		
+		private List<Pair<Integer, String>> get(Field field) {
+			List<Pair<Integer, String>> res = map.get(field);
+			if(res == null) {
+				res = Lists.newArrayList();
+				map.put(field, res);
+			}
+			return res;
 		}
 
 		private void put(Field field, String token) {
 			final int score = field.getScore(token, getConfig());
 			final Pair<Integer, String> entry = Pair.of(score, token);
-			map.get(field).add(entry);
+			get(field).add(entry);
 		}
 
 		private void max(Tokenizer tokenizer) {
-			if(tokenizer.valid && tokenizer.getScore() > getScore()) {
+			if(tokenizer.valid && !tokenizer.map.isEmpty() && (map.isEmpty() || tokenizer.getScore() > getScore())) {
 				map = tokenizer.map;
+			}
+			else {
+				map.isEmpty();
 			}
 		}
 
 		public Set<Field> keySet() {
 			return map.keySet().stream()
-					.filter(field -> !map.get(field).isEmpty())
+					.filter(field -> !get(field).isEmpty())
 					.collect(Collectors.toSet());
-		}
-
-		public List<Pair<Integer, String>> get(Field field) {
-			return map.get(field);
 		}
 
 		public Integer getScore(){
