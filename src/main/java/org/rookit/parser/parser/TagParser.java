@@ -25,6 +25,7 @@ package org.rookit.parser.parser;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Set;
 
 import org.apache.commons.lang3.text.WordUtils;
@@ -137,7 +138,7 @@ public class TagParser extends AbstractParser<TrackPath, SingleTrackAlbumBuilder
 		if(getConfig().isSetDate() && date != null){
 			try{
 				return LocalDate.parse(date, DateTimeFormatter.ofPattern(Album.DATE_FORMAT));
-			} catch (IllegalArgumentException e){
+			} catch (DateTimeParseException e){
 				return getAlternativeDate(date);
 			}
 		}
@@ -148,7 +149,7 @@ public class TagParser extends AbstractParser<TrackPath, SingleTrackAlbumBuilder
 		for(String format : Album.DATE_FORMAT_ALT){
 			try{
 				return LocalDate.parse(date, DateTimeFormatter.ofPattern(format));
-			} catch (IllegalArgumentException e1){
+			} catch (DateTimeParseException e1){
 				continue;
 			}
 		}
