@@ -234,15 +234,22 @@ public class TrackFormat implements Comparable<TrackFormat>{
 		int lastIndex = 0;
 		boolean fits = true;
 
-		for(int i=0; fits && i<sepList.size()-1 && fits; i++){
-			final Pair<String, Integer> separator = sepList.get(i);
-			final Pair<String, Integer> nextSeparator = sepList.get(i+1);
-			curIndex = indexOf(fileName, separator, lastIndex);
-			lastIndex = indexOf(fileName, nextSeparator, curIndex+separator.getKey().length());
-			fits = curIndex >= 0 && lastIndex >= 0 && StringUtils.countMatches(fileName.substring(curIndex, lastIndex).toLowerCase(), separator.getLeft().toLowerCase()) >= separator.getValue();
-			lastIndex = curIndex;
+		if(sepList.size() == 1) {
+			final Pair<String, Integer> sep = sepList.get(0);
+			fits = StringUtils.countMatches(fileName, sep.getKey()) == sep.getRight()
+					&& fileName.indexOf(sep.getKey()) > 0
+					&& fileName.lastIndexOf(sep.getKey()) < fileName.length()-1;
 		}
-
+		else {
+			for(int i=0; fits && i<sepList.size()-1 && fits; i++){
+				final Pair<String, Integer> separator = sepList.get(i);
+				final Pair<String, Integer> nextSeparator = sepList.get(i+1);
+				curIndex = indexOf(fileName, separator, lastIndex);
+				lastIndex = indexOf(fileName, nextSeparator, curIndex+separator.getKey().length());
+				fits = curIndex >= 0 && lastIndex >= 0 && StringUtils.countMatches(fileName.substring(curIndex, lastIndex).toLowerCase(), separator.getLeft().toLowerCase()) >= separator.getValue();
+				lastIndex = curIndex;
+			}
+		}
 		return fits;
 	}
 
