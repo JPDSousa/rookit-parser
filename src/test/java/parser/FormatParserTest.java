@@ -76,7 +76,7 @@ public class FormatParserTest {
 	@Test
 	public final void testMultiparse() {
 		final String input = "Artist1 - Track1 (feat. Artist2)";
-		final List<SingleTrackAlbumBuilder> results = parser.multiparse(input);
+		final List<SingleTrackAlbumBuilder> results = parser.parseAll(input);
 		assertNotNull(results);
 		System.out.println(input);
 		for(SingleTrackAlbumBuilder result : results) {

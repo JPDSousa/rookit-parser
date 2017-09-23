@@ -25,6 +25,8 @@ import org.rookit.parser.result.Result;
 import org.rookit.parser.result.ResultFactory;
 import org.rookit.parser.utils.ParserValidator;
 
+import com.google.common.collect.Lists;
+
 abstract class AbstractParser<T, R extends Result<?>> implements Parser<T, R> {
 
 	protected static final ParserValidator VALIDATOR = ParserValidator.getDefault();
@@ -53,12 +55,26 @@ abstract class AbstractParser<T, R extends Result<?>> implements Parser<T, R> {
 		return parseFromBaseResult(token, (R) baseResult);
 	}
 	
+	@Override
+	public Iterable<R> parseAll(T token) {
+		return Lists.newArrayList(parse(token));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <O extends Result<?>> Iterable<R> parseAll(T token, O baseResult) {
+		VALIDATOR.checkArgumentClass(getConfig().getResultClass(), baseResult.getClass(), "The base result class is not valid.");
+		return Lists.newArrayList(parse(token, (R) baseResult));
+	}
+
 	protected abstract R parseFromBaseResult(T token, R baseResult);
 	
 	@Override
 	public final R parse(T token) {
 		return parseFromBaseResult(token, createEmptyResult());
 	}
+	
+	
 
 	@Override
 	public int hashCode() {

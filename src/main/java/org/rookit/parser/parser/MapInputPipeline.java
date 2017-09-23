@@ -30,4 +30,14 @@ class MapInputPipeline<I, CI, O extends Result<?>> extends AbstractParserPipelin
 		return mapper.apply(input);
 	}
 
+	@Override
+	public Iterable<O> parseAll(I token) {
+		return topParser.build().parseAll(token);
+	}
+
+	@Override
+	public <R extends Result<?>> Iterable<O> parseAll(I token, R baseResult) {
+		return topParser.build().parseAll(token, baseResult);
+	}
+
 }

@@ -12,16 +12,40 @@ class ParserPipelineImpl<I, CI, O extends Result<?>> extends AbstractParserPipel
 		this.topParser = topParser;
 	}
 	
+	private O getBaseResult(I token) {
+		return topParser.build().parse(token);
+	}
+	
+	private <R extends Result<?>> O getBaseResult(I token, R baseResult) {
+		return topParser.build().parse(token, baseResult);
+	}
+	
 	@Override
 	public O parse(I token) {
-		final O baseResult = topParser.build().parse(token);
-		return parser.parse(input2CurrentInput(token), baseResult);
+		return parseLocal(token, getBaseResult(token));
 	}
 
 	@Override
 	public <R extends Result<?>> O parse(I token, R baseResult) {
-		final O baseResult1 = topParser.build().parse(token, baseResult);
-		return parser.parse(input2CurrentInput(token), baseResult1);
+		return parseLocal(token, getBaseResult(token, baseResult));
+	}
+	
+	private O parseLocal(I token, O baseResult) {
+		return parser.parse(input2CurrentInput(token), baseResult);
+	}
+
+	@Override
+	public Iterable<O> parseAll(I token) {
+		return parseAllLocal(token, getBaseResult(token));
+	}
+
+	@Override
+	public <R extends Result<?>> Iterable<O> parseAll(I token, R baseResult) {
+		return parseAllLocal(token, getBaseResult(token, baseResult));
+	}
+	
+	private Iterable<O> parseAllLocal(I token, O baseResult) {
+		return parser.parseAll(input2CurrentInput(token), baseResult);
 	}
 
 	@Override
