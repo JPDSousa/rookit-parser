@@ -126,4 +126,9 @@ public class TrackPath {
 	public int hashCode() {
 		return super.hashCode();
 	}
+	
+	@Override
+	public String toString() {
+		return path.toString();
+	}
 }
