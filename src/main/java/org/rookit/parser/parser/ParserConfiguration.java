@@ -23,7 +23,7 @@ package org.rookit.parser.parser;
 
 import java.util.List;
 
-import org.rookit.database.DBManager;
+import org.rookit.mongodb.DBManager;
 import org.rookit.parser.result.Result;
 import org.rookit.parser.utils.ParserValidator;
 

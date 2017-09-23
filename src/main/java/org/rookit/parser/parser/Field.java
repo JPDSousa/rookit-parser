@@ -26,23 +26,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.text.WordUtils;
-import org.rookit.database.DBManager;
+import org.rookit.mongodb.DBManager;
 import org.rookit.dm.artist.Artist;
 import org.rookit.dm.artist.ArtistFactory;
 import org.rookit.dm.genre.GenreFactory;
 import org.rookit.dm.track.Track;
 import org.rookit.dm.track.TypeVersion;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
-import org.smof.annnotations.SmofBuilder;
-import org.smof.annnotations.SmofIndex;
-import org.smof.annnotations.SmofIndexes;
-import org.smof.annnotations.SmofNumber;
-import org.smof.annnotations.SmofParam;
-import org.smof.annnotations.SmofString;
-import org.smof.element.AbstractElement;
-import org.smof.element.Element;
-import org.smof.index.IndexType;
-import org.smof.annnotations.SmofIndexField;
 
 interface InitialScores{
 	//No value

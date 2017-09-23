@@ -30,11 +30,11 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.rookit.database.DBManager;
-import org.rookit.database.queries.AlbumQuery;
-import org.rookit.database.queries.ArtistQuery;
-import org.rookit.database.queries.GenreQuery;
-import org.rookit.database.queries.TrackQuery;
+import org.rookit.mongodb.DBManager;
+import org.rookit.mongodb.queries.AlbumQuery;
+import org.rookit.mongodb.queries.ArtistQuery;
+import org.rookit.mongodb.queries.GenreQuery;
+import org.rookit.mongodb.queries.TrackQuery;
 import org.rookit.dm.album.Album;
 import org.rookit.dm.artist.Artist;
 import org.rookit.dm.genre.Genre;
