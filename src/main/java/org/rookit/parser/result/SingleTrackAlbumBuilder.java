@@ -103,7 +103,6 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	
 	private SingleTrackAlbumBuilder(AlbumFactory albumFactory, TrackFactory trackFactory) {
 		super();
-		this.duration = Track.UNDEF_DURATION;
 		this.trackFactory = trackFactory;
 		this.albumFactory = albumFactory;
 		this.ignored = Lists.newArrayList();
