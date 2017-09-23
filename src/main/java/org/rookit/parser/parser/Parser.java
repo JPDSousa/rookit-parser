@@ -30,9 +30,11 @@ public interface Parser<T, R extends Result<?>> {
 		return ParserConfiguration.create(resultClass);
 	}
 	
+	R parse(T token);
 	<O extends Result<?>> R parse(T token, O baseResult);
 	
-	R parse(T token);
+	Iterable<R> parseAll(T token);
+	<O extends Result<?>> Iterable<R> parseAll(T token, O baseResult);
 	
 	@Override
 	boolean equals(Object object);

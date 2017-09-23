@@ -22,7 +22,6 @@
 package org.rookit.parser.parser;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.rookit.parser.exceptions.InvalidSongFormatException;
 import org.rookit.parser.exceptions.MissingRequiredFieldException;
+import org.rookit.parser.result.Result;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
 import org.rookit.parser.utils.FormatSong;
 import org.rookit.parser.utils.PathUtils;
@@ -43,7 +43,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 
 @SuppressWarnings("javadoc")
-public class FormatParser extends AbstractParser<String, SingleTrackAlbumBuilder> implements Multiparser<String, SingleTrackAlbumBuilder> {
+public class FormatParser extends AbstractParser<String, SingleTrackAlbumBuilder> {
 
 	private static final String[][] ENHANCEMENTS = {/*{"_", " "},*/
 			{"  ", " "},
@@ -99,13 +99,13 @@ public class FormatParser extends AbstractParser<String, SingleTrackAlbumBuilder
 
 	@Override
 	protected SingleTrackAlbumBuilder parseFromBaseResult(String token, SingleTrackAlbumBuilder baseResult) {
-		return multiparse(token, baseResult).get(0);
+		return parseAllLocal(token, baseResult).get(0);
 	}
 
 	@Override
-	public List<SingleTrackAlbumBuilder> multiparse(String path){
+	public List<SingleTrackAlbumBuilder> parseAll(String path){
 		final SingleTrackAlbumBuilder builder = createEmptyResult();
-		final List<SingleTrackAlbumBuilder> results =  multiparse(path, builder);
+		final List<SingleTrackAlbumBuilder> results =  parseAllLocal(path, builder);
 		final int limit = getConfig().getLimit();
 		if(limit > 0 && limit < results.size()) {
 			return results.subList(0, limit);
@@ -113,7 +113,13 @@ public class FormatParser extends AbstractParser<String, SingleTrackAlbumBuilder
 		return results;
 	}
 
-	private List<SingleTrackAlbumBuilder> multiparse(String input, SingleTrackAlbumBuilder baseResult) {
+	@Override
+	public <O extends Result<?>> Iterable<SingleTrackAlbumBuilder> parseAll(String token, O baseResult) {
+		VALIDATOR.checkArgumentClass(getConfig().getResultClass(), baseResult.getClass(), "The base result class is not valid.");
+		return parseAllLocal(token, (SingleTrackAlbumBuilder) baseResult);
+	}
+
+	private List<SingleTrackAlbumBuilder> parseAllLocal(String input, SingleTrackAlbumBuilder baseResult) {
 		final String enhancedInput = enhanceInput(input);
 		final List<SingleTrackAlbumBuilder> results = Lists.newArrayList();
 		final List<TrackFormat> formats = getConfig().getFormats();
