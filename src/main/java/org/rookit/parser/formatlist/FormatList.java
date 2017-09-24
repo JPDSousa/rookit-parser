@@ -21,75 +21,43 @@
  ******************************************************************************/
 package org.rookit.parser.formatlist;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.rookit.dm.track.TypeTrack;
 import org.rookit.parser.parser.TrackFormat;
-import org.rookit.parser.utils.ParserValidator;
+import org.rookit.utils.resource.Resources;
 
 @SuppressWarnings("javadoc")
 public class FormatList {
 
 	private static final String PREFIX_COMMENT = "//";
-	private static final ParserValidator VALIDATOR = ParserValidator.getDefault();
-
-	private final Path listFile;
-
-	FormatList(final Path file){
-		listFile = file;
+	private static final Path DEFAULT_FORMATS_PATH = Resources.RESOURCES_MAIN.resolve("formats.txt");
+	
+	public static final FormatList readDefaults() throws IOException {
+		return readFromPath(DEFAULT_FORMATS_PATH);
+	}
+	
+	public static final FormatList readFromPath(Path path) throws IOException {
+		final Stream<String> rawFormats = Files.lines(path)
+				.filter(l -> !l.startsWith(PREFIX_COMMENT));
+		return new FormatList(rawFormats);
+		
 	}
 
-	public void put(TrackFormat format) {
-		try {
-			final BufferedWriter writter = Files.newBufferedWriter(listFile, StandardOpenOption.APPEND);
-			writter.write(format.toString()+"\n");
-			writter.close();
-		} catch(IOException e) {
-			VALIDATOR.handleIOException(e);
-		}
+	private final List<TrackFormat> formats;
+
+	FormatList(Stream<String> rawFormats){
+		formats = rawFormats
+				.map(TrackFormat::create)
+				.collect(Collectors.toList());
 	}
 
 	public Stream<TrackFormat> getAll() {
-		try {
-			return Files.lines(listFile)
-					.filter(l -> !l.startsWith(PREFIX_COMMENT))
-					.map(l -> TrackFormat.create(l))
-					.filter(t -> t != null);
-		} catch (IOException e) {
-			VALIDATOR.handleIOException(e);
-			return null;
-		}
-	}
-
-	public void reset() {
-		try {
-			final FileWriter writter = new FileWriter(listFile.toFile(), false);
-			StringBuilder content = new StringBuilder(32);
-
-			for(TypeTrack t : TypeTrack.values()){
-				content.append(PREFIX_COMMENT).append(t.ordinal()).append(": ").append(t.name()).append('\n');
-			}
-
-			writter.write(content.toString());
-			writter.close();
-		} catch (IOException e) {
-			VALIDATOR.handleIOException(e);
-		}
-	}
-
-	public void sort() {
-		SortedSet<TrackFormat> formats = new TreeSet<>(getAll().collect(Collectors.toSet()));
-		reset();
-		formats.forEach(f -> put(f));
+		return formats.stream();
 	}
 
 }

@@ -23,6 +23,7 @@ package parser;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
@@ -57,7 +58,7 @@ public class FormatParserTest {
 	}
 	
 	@Before
-	public void before() {
+	public void before() throws IOException {
 		final ParserConfiguration<String, SingleTrackAlbumBuilder> config = Parser.createConfiguration(SingleTrackAlbumBuilder.class);
 		config.withDbStorage(false)
 		.withRequiredFields(Field.getRequiredFields())
