@@ -73,10 +73,8 @@ public class FormatParserTest {
 		final FormatParser p2 = parserFactory.newFormatParserWithDefaultConfiguration();
 		assertEquals(p2, p1);
 	}
-
-	@Test
-	public final void testMultiparse() {
-		final String input = "Artist1 - Track1 (feat. Artist2)";
+	
+	private final void testMultiparse(String input) {
 		final List<SingleTrackAlbumBuilder> results = parser.parseAll(input);
 		assertNotNull(results);
 		System.out.println(input);
@@ -88,7 +86,17 @@ public class FormatParserTest {
 	}
 
 	@Test
-	public final void testParseString() {
+	public final void testMultiparse() {
+		testMultiparse("Artist1 - Track1 (feat. Artist2)");
+	}
+	
+	@Test
+	public final void testMultiParse7() {
+		testMultiparse("A R I Z O N A - Electric Touch (Lyrics _ Lyric Video)");
+	}
+
+	@Test
+	public final void testParse() {
 		final TrackFormat format = TrackFormat.create("<ARTIST> - <TITLE> (<IGNORE>)");
 		final String artist = "Zabreguelles";
 		final String title = "This Title Is Awesome";

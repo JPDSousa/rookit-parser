@@ -514,6 +514,17 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	public void attachFormat(TrackFormat format) {
 		this.format = format;
 	}
+
+	@Override
+	public String toString() {
+		return "SingleTrackAlbumBuilder [type=" + type + ", title=" + title + ", versionType=" + versionType
+				+ ", extraArtists=" + extraArtists + ", mainArtists=" + mainArtists + ", features=" + features
+				+ ", producers=" + producers + ", path=" + path + ", disc=" + disc + ", number=" + number + ", cover="
+				+ Arrays.toString(cover) + ", album=" + album + ", date=" + date + ", albumTitle=" + albumTitle
+				+ ", genres=" + genres + ", hiddenTrack=" + hiddenTrack + ", ignored=" + ignored + ", duration="
+				+ duration + ", trackFactory=" + trackFactory + ", albumFactory=" + albumFactory + ", format=" + format
+				+ "]";
+	}
 	
 	
 }

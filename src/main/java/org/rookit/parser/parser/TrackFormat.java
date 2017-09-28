@@ -25,6 +25,7 @@ package org.rookit.parser.parser;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -37,12 +38,13 @@ import org.rookit.parser.exceptions.NoFieldsException;
 import org.rookit.parser.utils.ParserValidator;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Queues;
 
 @SuppressWarnings("javadoc")
 public class TrackFormat implements Comparable<TrackFormat>{
 
 	private static final ParserValidator VALIDATOR = ParserValidator.getDefault();
-	
+
 	public static final String SEP_END = "|E|";
 	public static final String SEP_START = "|S|";
 
@@ -125,7 +127,7 @@ public class TrackFormat implements Comparable<TrackFormat>{
 
 		return fields;
 	}
-	
+
 	public static final String getWithin(String str, String init, String end){
 		String sub = null;
 		final int initIndex;
@@ -143,7 +145,7 @@ public class TrackFormat implements Comparable<TrackFormat>{
 	public List<Field> getFields(){
 		return fieldList;
 	}
-	
+
 	public int indexOf(String string, String sep, int startPos) {
 		if(sep.equals(SEP_START)) {
 			return 0;
@@ -154,21 +156,21 @@ public class TrackFormat implements Comparable<TrackFormat>{
 		else {
 			return StringUtils.indexOfIgnoreCase(string, sep, startPos);
 		}
-		
+
 	}
-	
+
 	public int indexOf(String string, String sep) {
 		return indexOf(string, sep, 0);
 	}
-	
+
 	public int indexOf(String string, Pair<String, Integer> sep, int startPos) {
 		return indexOf(string, sep.getKey(), startPos);
 	}
-	
+
 	public int indexOf(String string, Pair<String, Integer> sep) {
 		return indexOf(string, sep, 0);
 	}
-	
+
 	public int length(Pair<String, Integer> sepPair) {
 		final String sep = sepPair.getKey();
 		if(sep.equals(SEP_START) || sep.equals(SEP_END)) {
@@ -227,30 +229,20 @@ public class TrackFormat implements Comparable<TrackFormat>{
 	}
 
 	public boolean fits(String fileName) {
-		if(sepList.isEmpty()) {
+		return fits(fileName, sepList.normalizeToQueue(), true);
+	}
+
+	private boolean fits(String fileName, Queue<String> seps, boolean initial) {
+		if(fileName.isEmpty()) {
+			return seps.isEmpty() && !endsWithField;
+		}
+		if(seps.isEmpty()) {
 			return true;
 		}
-		int curIndex;
-		int lastIndex = 0;
-		boolean fits = true;
-
-		if(sepList.size() == 1) {
-			final Pair<String, Integer> sep = sepList.get(0);
-			fits = StringUtils.countMatches(fileName, sep.getKey()) == sep.getRight()
-					&& fileName.indexOf(sep.getKey()) > 0
-					&& fileName.lastIndexOf(sep.getKey()) < fileName.length()-1;
-		}
-		else {
-			for(int i=0; fits && i<sepList.size()-1 && fits; i++){
-				final Pair<String, Integer> separator = sepList.get(i);
-				final Pair<String, Integer> nextSeparator = sepList.get(i+1);
-				curIndex = indexOf(fileName, separator, lastIndex);
-				lastIndex = indexOf(fileName, nextSeparator, curIndex+separator.getKey().length());
-				fits = curIndex >= 0 && lastIndex >= 0 && StringUtils.countMatches(fileName.substring(curIndex, lastIndex).toLowerCase(), separator.getLeft().toLowerCase()) >= separator.getValue();
-				lastIndex = curIndex;
-			}
-		}
-		return fits;
+		final String separator = seps.poll();
+		final int index = StringUtils.indexOfIgnoreCase(fileName, separator);
+		return (index > 0 || (!(initial && startsWithField) && index == 0)) 
+				&& fits(fileName.substring(index+separator.length()), seps, false);
 	}
 
 	public List<Field> getMissingRequiredFields(Field[] fields) {
@@ -272,7 +264,7 @@ public class TrackFormat implements Comparable<TrackFormat>{
 	public int compareTo(TrackFormat o) {
 		return Collator.getInstance().compare(toString(), o.toString());
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -299,13 +291,13 @@ public class TrackFormat implements Comparable<TrackFormat>{
 	}
 
 	private class Separators {
-		
+
 		private final List<Pair<String, Integer>> separators;
-		
+
 		private Separators() {
 			separators = Lists.newArrayList();
 		}
-		
+
 		private void add(String separator) {
 			final String forSep = formatSep(separator);
 			if(!separators.isEmpty()) {
@@ -321,15 +313,15 @@ public class TrackFormat implements Comparable<TrackFormat>{
 		private Pair<String, Integer> getLast() {
 			return separators.get(separators.size()-1);
 		}
-	
+
 		private String formatSep(String sep) {
 			return sep.replaceAll("  ", " ");
 		}
-		
+
 		private boolean isEmpty() {
 			return separators.isEmpty();
 		}
-		
+
 		private List<Pair<String, Integer>> getAll() {
 			final List<Pair<String, Integer>> separators = Lists.newArrayList();
 			if(startsWithField) {
@@ -341,21 +333,21 @@ public class TrackFormat implements Comparable<TrackFormat>{
 			}
 			return separators;
 		}
-		
+
 		private int size() {
 			return separators.size();
 		}
-		
+
 		private Pair<String, Integer> get(int index) {
 			return separators.get(index);
 		}
-		
+
 		private void append2Last(String separator) {
 			final Pair<String, Integer> last = getLast();
 			last.setValue(last.getValue()-1);
 			add(last.getKey()+separator);
 		}
-		
+
 		private List<String> normalize() {
 			final List<String> normalized = Lists.newArrayList();
 			for(Pair<String, Integer> separator : getAll()) {
@@ -365,7 +357,20 @@ public class TrackFormat implements Comparable<TrackFormat>{
 			}
 			return normalized;
 		}
-		
+
+		private Queue<String> normalizeToQueue() {
+			final Queue<String> queue = Queues.newArrayDeque();
+			for(Pair<String, Integer> separator : getAll()) {
+				if(separator.getKey().equals(SEP_START) || separator.getKey().equals(SEP_END)) {
+					continue;
+				}
+				for(int i = 0; i < separator.getRight(); i++) {
+					queue.add(separator.getLeft());
+				}
+			}
+			return queue;
+		}
+
 		private List<String> getAllRaw() {
 			final List<String> all = Lists.newArrayList();
 			for(Pair<String, Integer> separator : this.separators) {
@@ -380,7 +385,7 @@ public class TrackFormat implements Comparable<TrackFormat>{
 		public String toString() {
 			return separators.toString();
 		}
-		
-		
+
+
 	}
 }

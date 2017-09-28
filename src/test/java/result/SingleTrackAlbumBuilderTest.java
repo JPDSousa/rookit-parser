@@ -23,6 +23,7 @@ package result;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -106,7 +107,7 @@ public class SingleTrackAlbumBuilderTest {
 	}
 
 	@Test
-	public final void testBuild() {
+	public final void testBuild() throws IOException {
 		final TypeTrack trackType = FACTORY.getRandomTrackType();
 		final String hiddenTrack = FACTORY.randomString();
 		final String albumTitle = FACTORY.randomString();
@@ -140,6 +141,8 @@ public class SingleTrackAlbumBuilderTest {
 				.withHiddenTrack(hiddenTrack);
 		final Album album = builder.build();
 		final Track track = Iterables.get(album.getTracks(), 0);
+		final byte[] actualCover = new byte[title.length()];
+		album.getCover().getAttachedByteArray().read(actualCover);
 		assertEquals(trackType, track.getType());
 		assertEquals(title, track.getTitle().getTitle());
 		assertEquals(mainArtists, track.getMainArtists());
@@ -147,7 +150,7 @@ public class SingleTrackAlbumBuilderTest {
 		assertEquals(producers, track.getProducers());
 		assertEquals(path.getPath(), track.getPath().getAttachedFile());
 		assertNotNull(album.getTrack(disc, number));
-		assertEquals(cover, album.getCover());
+		assertArrayEquals(cover, actualCover);
 		assertEquals(date, album.getReleaseDate());
 		assertEquals(albumTitle, album.getTitle());
 		assertEquals(genres, album.getAllGenres());

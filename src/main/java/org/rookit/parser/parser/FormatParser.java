@@ -99,7 +99,8 @@ public class FormatParser extends AbstractParser<String, SingleTrackAlbumBuilder
 
 	@Override
 	protected SingleTrackAlbumBuilder parseFromBaseResult(String token, SingleTrackAlbumBuilder baseResult) {
-		return parseAllLocal(token, baseResult).get(0);
+		final List<SingleTrackAlbumBuilder> results = parseAllLocal(token, baseResult);
+		return !results.isEmpty() ? results.get(0) : null;
 	}
 
 	@Override
