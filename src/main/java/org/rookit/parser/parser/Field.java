@@ -30,7 +30,6 @@ import org.rookit.mongodb.DBManager;
 import org.rookit.dm.artist.Artist;
 import org.rookit.dm.artist.ArtistFactory;
 import org.rookit.dm.genre.GenreFactory;
-import org.rookit.dm.track.Track;
 import org.rookit.dm.track.TypeVersion;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
 
@@ -84,7 +83,7 @@ public enum Field {
 		public int getScore(String value, ParserConfiguration<?, ?> context) {
 			int isValid = 1;
 
-			for(String token : Track.SUSPICIOUS_TITLE_CHARSEQS){
+			for(String token : SUSPICIOUS_TITLE_CHARSEQS){
 				if(value.contains(token)){
 					isValid = -1;
 					break;
@@ -318,6 +317,8 @@ public enum Field {
 
 	private static final Field[] REQUIRED_FIELDS = new Field[]{IGNORE, ARTIST, FEAT, GENRE};
 	private static final Field[][] ALTERNATIVES = new Field[][]{{TITLES, TITLE}, {ARTIST, ARTIST_EXTRA}};
+
+	public static final String[] SUSPICIOUS_TITLE_CHARSEQS = new String[]{"- ", " -",  "[", "]", "_", "{", "}", "~", "|", "�", " vs ", " vs. "};
 
 	private final int score;
 
