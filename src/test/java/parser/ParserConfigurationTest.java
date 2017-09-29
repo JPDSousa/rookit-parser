@@ -213,6 +213,17 @@ public class ParserConfigurationTest {
 			//intentionally empty
 			return null;
 		}
+
+		@Override
+		public int getTrackFormatOccurrences(String arg0) {
+			//intentionally empty
+			return 0;
+		}
+
+		@Override
+		public void updateTrackFormat(org.rookit.dm.parser.TrackFormat arg0) {
+			//intentionally empty
+		}
 		
 	}
 
