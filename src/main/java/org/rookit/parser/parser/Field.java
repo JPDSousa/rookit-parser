@@ -30,6 +30,8 @@ import org.rookit.mongodb.DBManager;
 import org.rookit.dm.artist.Artist;
 import org.rookit.dm.artist.ArtistFactory;
 import org.rookit.dm.genre.GenreFactory;
+import org.rookit.dm.track.Track;
+import org.rookit.dm.track.TrackFactory;
 import org.rookit.dm.track.TypeVersion;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
 
@@ -281,7 +283,7 @@ public enum Field {
 	 * <p> Use this field to refer to a hidden track in another track
 	 * the field is associated with the title of the hidden track, as all the
 	 * other tags will be associated with the main track.
-	 * Note: use {@link TrackFactory#extractHiddenTrack(track.Track)} to create
+	 * Note: use {@link TrackFactory#extractHiddenTrack(Track)} to create
 	 * an hidden track out of the title string.
 	 */
 	HIDDEN(InitialScores.L2_VALUE) {
