@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.rookit.mongodb.DBManager;
 import org.rookit.parser.parser.TrackFormat;
 import org.rookit.utils.resource.Resources;
 
@@ -45,7 +46,10 @@ public class FormatList {
 		final Stream<String> rawFormats = Files.lines(path)
 				.filter(l -> !l.startsWith(PREFIX_COMMENT));
 		return new FormatList(rawFormats);
-		
+	}
+	
+	public static final FormatList readFromDB(DBManager db) {
+		return new FormatList(db.streamTrackFormats());
 	}
 
 	private final List<TrackFormat> formats;
