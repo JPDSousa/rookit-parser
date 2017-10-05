@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -223,6 +224,12 @@ public class ParserConfigurationTest {
 		@Override
 		public void updateTrackFormat(org.rookit.dm.parser.TrackFormat arg0) {
 			//intentionally empty
+		}
+
+		@Override
+		public Stream<String> streamTrackFormats() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 		
 	}
