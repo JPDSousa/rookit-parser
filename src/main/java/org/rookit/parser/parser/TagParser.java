@@ -64,6 +64,7 @@ public class TagParser extends AbstractParser<TrackPath, SingleTrackAlbumBuilder
 			isSuspicious(path.getPath());
 			mp3 = getMp3(path);
 			track.withPath(path);
+			track.withDuration(mp3.getLengthInMilliseconds());
 			
 			if(mp3.hasId3v1Tag()){
 				setV1Tags(track, mp3.getId3v1Tag());

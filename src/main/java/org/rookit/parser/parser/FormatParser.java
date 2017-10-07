@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.rookit.mongodb.DBManager;
 import org.rookit.parser.exceptions.InvalidSongFormatException;
 import org.rookit.parser.exceptions.MissingRequiredFieldException;
 import org.rookit.parser.result.Result;
@@ -163,12 +164,18 @@ public class FormatParser extends AbstractParser<String, SingleTrackAlbumBuilder
 						.collect(Collectors.toList());
 				f.setField(track, tokens, getConfig());
 			}
-			track.setScore(tokenizer.getScore());
+			track.setScore(getScore(tokenizer, format));
 			return track;
 		} catch (NumberFormatException e) {
 			VALIDATOR.handleParseException(e);
 			return null;
 		}
+	}
+
+	private int getScore(Tokenizer tokenizer, TrackFormat format) {
+		final DBManager db = getConfig().getDBConnection();
+		int tfScore = db != null ? db.getTrackFormatOccurrences(format.toString()) : 0;
+		return tokenizer.getScore() + tfScore;
 	}
 
 	/**
