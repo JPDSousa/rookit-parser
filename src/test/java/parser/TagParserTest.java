@@ -62,7 +62,7 @@ public class TagParserTest {
 		final TrackPath trackPath = TestUtils.getRandomTrackPath();
 		final SingleTrackAlbumBuilder result = parser.parse(trackPath);
 		assertNotNull(result);
-		System.out.println(PrintUtils.track(result.getTrack()));
+		assertEquals(trackPath.getDurationMiliSec(), result.getDuration());
 	}
 
 	/**
