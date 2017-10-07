@@ -316,9 +316,9 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		if(isVersion()) {
 			return createVersionOf(original);
 		}
-		original.setDuration(duration);
 		fill(producers, a -> original.addProducer(a));
 		fillPaths(original);
+		original.setDuration(duration);
 		fillGenres(original);
 		setHiddenTrack(original);
 		return original;
@@ -349,10 +349,10 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 
 	private VersionTrack createVersionOf(Track original) {
 		final VersionTrack version = trackFactory.createVersionTrack(versionType, original);
-		original.setDuration(duration);
 		fill(extraArtists, a -> version.addVersionArtist(a));
 		fill(producers, a -> version.addProducer(a));
 		fillPaths(version);
+		version.setDuration(duration);
 		fillGenres(version);
 		setHiddenTrack(version);
 		return version;
