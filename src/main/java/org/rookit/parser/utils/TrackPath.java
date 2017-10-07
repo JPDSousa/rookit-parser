@@ -37,7 +37,7 @@ public class TrackPath {
 	
 	public static final String PATHS = "paths";
 	
-	public static final long MAX_DURATION = 20*60;
+	public static final long MAX_DURATION = 20*60*1000;
 	
 	private static final ParserValidator VALIDATOR = ParserValidator.getDefault();
 
@@ -99,12 +99,10 @@ public class TrackPath {
 	}
 	
 	public long getDurationSec() {
-		final long duration = getMp3().getLengthInSeconds();
-		validateDurationSec(duration);
-		return duration;
+		return getDurationMiliSec()/1000;
 	}
 	
-	private void validateDurationSec(long duration) {
+	private void validateDurationMiliSec(long duration) {
 		if(duration <= 0) {
 			throw new IllegalArgumentException(getPath() + ": duration must be greater than 0 seconds");
 		}
@@ -114,7 +112,9 @@ public class TrackPath {
 	}
 
 	public long getDurationMiliSec() {
-		return getDurationSec()*1000;
+		final long duration = getMp3().getLengthInMilliseconds();
+		validateDurationMiliSec(duration);
+		return duration;
 	}
 	
 	@Override
