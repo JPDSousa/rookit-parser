@@ -207,6 +207,10 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		return this;
 	}
 	
+	public long getDuration() {
+		return duration;
+	}
+
 	public SingleTrackAlbumBuilder withGenres(Set<Genre> genres) {
 		setGenres(genres);
 		return this;
