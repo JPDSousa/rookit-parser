@@ -72,6 +72,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 				.withDate(builder.date)
 				.withAlbumTitle(builder.albumTitle)
 				.withGenres(builder.genres)
+				.withDuration(builder.duration)
 				.withHiddenTrack(builder.hiddenTrack);
 		builder.getIgnored().forEach(i -> clone.withIgnore(i));
 		clone.setScore(builder.getScore());
