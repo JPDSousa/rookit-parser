@@ -60,21 +60,25 @@ public class TagParser extends AbstractParser<TrackPath, SingleTrackAlbumBuilder
 	@Override
 	protected SingleTrackAlbumBuilder parseFromBaseResult(TrackPath path, SingleTrackAlbumBuilder track) {
 		final Mp3File mp3;
+		final SingleTrackAlbumBuilder result = SingleTrackAlbumBuilder.create(track);
 		try {
 			isSuspicious(path.getPath());
 			mp3 = getMp3(path);
-			track.withPath(path);
-			track.withDuration(mp3.getLengthInMilliseconds());
+			result.withPath(path);
+			result.withDuration(mp3.getLengthInMilliseconds());
 			
 			if(mp3.hasId3v1Tag()){
-				setV1Tags(track, mp3.getId3v1Tag());
+				setV1Tags(result, mp3.getId3v1Tag());
 			}
 			if(mp3.hasId3v2Tag()){
-				setV2Tags(track, mp3.getId3v2Tag());
+				setV2Tags(result, mp3.getId3v2Tag());
 			}
 
+			return result;
+		} catch (UnsupportedTagException e) {
+			// returns the original unaltered result
 			return track;
-		} catch (UnsupportedTagException | SuspiciousCharSeqException | SuspiciousDuplicateException  e) {
+		} catch (SuspiciousCharSeqException | SuspiciousDuplicateException  e) {
 			VALIDATOR.handleParseException(e);
 			return null;
 		}
