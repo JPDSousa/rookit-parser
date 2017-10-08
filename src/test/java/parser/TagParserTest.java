@@ -26,9 +26,12 @@ package parser;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.rookit.dm.utils.PrintUtils;
 import org.rookit.parser.parser.Field;
 import org.rookit.parser.parser.Parser;
 import org.rookit.parser.parser.ParserConfiguration;
@@ -36,6 +39,8 @@ import org.rookit.parser.parser.ParserFactory;
 import org.rookit.parser.parser.TagParser;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
 import org.rookit.parser.utils.TrackPath;
+
+import com.mpatric.mp3agic.Mp3File;
 
 import utils.TestUtils;
 
@@ -63,6 +68,22 @@ public class TagParserTest {
 		final SingleTrackAlbumBuilder result = parser.parse(trackPath);
 		assertNotNull(result);
 		assertEquals(trackPath.getDurationMiliSec(), result.getDuration());
+	}
+	
+	@Test
+	public final void testParseNoMetadata() throws IOException {
+		final SingleTrackAlbumBuilder expected = SingleTrackAlbumBuilder.create();
+		final Path sourcePath = TestUtils.getRandomTrackPath().getPath();
+		final Path targetPath = sourcePath.getParent().resolve("test.mp3");
+		Files.copy(sourcePath, targetPath);
+		final TrackPath trackPath = TrackPath.create(targetPath);
+		final Mp3File mp3 = trackPath.getMp3();
+		mp3.removeCustomTag();
+		mp3.removeId3v1Tag();
+		mp3.removeId3v2Tag();
+		trackPath.updateMP3(mp3);
+		assertEquals(expected, parser.parse(trackPath, expected));
+		Files.delete(targetPath);
 	}
 
 	/**
