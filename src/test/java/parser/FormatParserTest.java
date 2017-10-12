@@ -26,7 +26,6 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -75,7 +74,7 @@ public class FormatParserTest {
 	}
 	
 	private final void testMultiparse(String input) {
-		final List<SingleTrackAlbumBuilder> results = parser.parseAll(input);
+		final Iterable<SingleTrackAlbumBuilder> results = parser.parseAll(input);
 		assertNotNull(results);
 		System.out.println(input);
 		for(SingleTrackAlbumBuilder result : results) {
