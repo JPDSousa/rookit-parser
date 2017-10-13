@@ -57,8 +57,12 @@ class FormatParserWorker implements Runnable {
 	
 	private int getScore(Tokenizer tokenizer, TrackFormat format) {
 		final DBManager db = config.getDBConnection();
-		int tfScore = db != null ? db.getTrackFormatOccurrences(format.toString()) : 0;
-		return tokenizer.getScore() + tfScore;
+		final int tScore = tokenizer.getScore();
+		if(tScore > 0) {
+			int tfScore = db != null ? db.getTrackFormatOccurrences(format.toString()) : 0;
+			return tScore + tfScore;
+		}
+		return tScore;
 	}
 	
 	private SingleTrackAlbumBuilder parse(String pathName, TrackFormat format, SingleTrackAlbumBuilder track) {

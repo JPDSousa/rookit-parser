@@ -107,7 +107,7 @@ public class FormatParser extends AbstractParser<String, SingleTrackAlbumBuilder
 			executor.execute(worker);
 		}
 		executor.shutdown();
-		while(!executor.isTerminated()) {}
+		while(!executor.isTerminated()) {;}
 		return results;
 	}
 
