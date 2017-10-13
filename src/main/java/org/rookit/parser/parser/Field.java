@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 import org.rookit.mongodb.DBManager;
 import org.rookit.dm.artist.Artist;
@@ -42,6 +43,27 @@ interface InitialScores{
 	static final int L1_VALUE = 1;
 	//Level 2 value
 	static final int L2_VALUE = 3;
+}
+
+enum Score {
+	SEVERE(10, new String[]{"[", "]", " - ", "_"}),
+	LOW(2, new String[]{"featuring", "feat.", "feat ", "ft.", "ft "});
+
+	private final int points;
+	private final String[] tokens;
+
+	private Score(final int points, final String[] tokens){
+		this.points = points;
+		this.tokens = tokens;
+	}
+
+	public int getPoints() {
+		return points;
+	}
+
+	public String[] getTokens() {
+		return tokens;
+	}
 }
 
 /**
@@ -62,14 +84,13 @@ public enum Field {
 		@Override
 		public int getScore(String value, ParserConfiguration<?, ?> context) {
 			int isNumber = 1;
-
 			for(int i = 0; i < value.length() && isNumber>0; i++){
 				if(!Character.isDigit(value.charAt(i))){
 					isNumber = -2;
 				}
 			}
 
-			return isNumber*getScore();
+			return isNumber*super.getScore(value, context);
 		}
 	},
 	/**
@@ -92,7 +113,7 @@ public enum Field {
 				}
 			}
 
-			return isValid*getScore();
+			return isValid*super.getScore(value, context);
 		}
 	},
 
@@ -127,7 +148,7 @@ public enum Field {
 						.first() != null ? 10 : -1;
 			}
 
-			return isValid*(getScore()+dbScore);
+			return isValid*(super.getScore(value, context)+dbScore);
 		}
 	},
 	/**
@@ -180,7 +201,7 @@ public enum Field {
 
 		@Override
 		public int getScore(String value, ParserConfiguration<?, ?> context) {
-			return getScore();
+			return super.getScore(value, context);
 		}
 	},	
 	/**
@@ -224,7 +245,7 @@ public enum Field {
 			else {
 				dbScore = 0;
 			}
-			return getScore()+dbScore;
+			return super.getScore(value, context)+dbScore;
 		}
 	},
 	VERSION(InitialScores.L2_VALUE) {
@@ -239,7 +260,7 @@ public enum Field {
 					.flatMap(version -> Arrays.stream(version.getTokens()))
 					.filter(token -> value.equalsIgnoreCase(token))
 					.findFirst()
-					.isPresent() ? getScore() : -20;
+					.isPresent() ? super.getScore(value, context) : -20;
 		}
 	},
 	/**
@@ -313,7 +334,7 @@ public enum Field {
 		public int getScore(String value, ParserConfiguration<?, ?> context) {
 			final DBManager db = context.getDBConnection();
 			final int occurrences = db != null ? db.getIgnoredOccurrences(value) : 0;
-			return getScore() + occurrences;
+			return super.getScore(value, context) + occurrences;
 		}
 	};
 
@@ -333,10 +354,6 @@ public enum Field {
 		return "<"+name()+">";
 	}
 
-	int getScore() {
-		return score;
-	}
-
 	/**
 	 * Calculates the score of the field based on the value passed as parameter.
 	 * The score returned can be negative, meaning that the value might not be suitable
@@ -349,7 +366,17 @@ public enum Field {
 	 * @param value value of the field. Use the field's value only.
 	 * @return An integer with the score calculated based on the value.
 	 */
-	public abstract int getScore(String value, ParserConfiguration<?, ?> context);
+	public int getScore(String value, ParserConfiguration<?, ?> context) {
+		int score = this.score;
+		for(Score s : Score.values()) {
+			for(String token : s.getTokens()) {
+				if(StringUtils.containsIgnoreCase(value, token)) {
+					score -= s.getPoints();
+				}
+			}
+		}
+		return score;
+	}
 
 	/**
 	 * Applies the field's values to the track passed as parameter.

@@ -45,8 +45,6 @@ public class FormatParser extends AbstractParser<String, SingleTrackAlbumBuilder
 			{"  ", " "},
 			{"�", "-"}};
 
-	public static final String[] FEAT_TOKENS = {"featuring", "feat", "ft"};
-
 	static FormatParser create(ParserConfiguration<String, SingleTrackAlbumBuilder> configuration) {
 		return new FormatParser(configuration);
 	}
