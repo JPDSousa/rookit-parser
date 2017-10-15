@@ -25,29 +25,34 @@ class MapResultPipeline<I, CI, NO extends Result<?>, O extends Result<?>> extend
 
 	@Override
 	public NO parse(I token) {
-		final O baseResult = topParser.build().parse(token);
+		final O baseResult = topParser.parse(token);
 		return mapper.apply(baseResult);
 	}
 
 	@Override
 	public <Z extends Result<?>> NO parse(I token, Z baseResult) {
-		final O baseResult1 = topParser.build().parse(token, baseResult);
+		final O baseResult1 = topParser.parse(token, baseResult);
 		return mapper.apply(baseResult1);
 	}
 
 	@Override
 	public Iterable<NO> parseAll(I token) {
 		final List<NO> baseResult = Lists.newArrayList();
-		topParser.build().parseAll(token).forEach(o -> baseResult.add(mapper.apply(o)));
+		topParser.parseAll(token).forEach(o -> baseResult.add(mapper.apply(o)));
 		return baseResult;
 	}
 
 	@Override
 	public <R extends Result<?>> Iterable<NO> parseAll(I token, R baseResult) {
 		final List<NO> baseResults = Lists.newArrayList();
-		topParser.build().parseAll(token, baseResult)
+		topParser.parseAll(token, baseResult)
 		.forEach(o -> baseResults.add(mapper.apply(o)));
 		return baseResults;
 	}
 
+	@Override
+	public ParserConfiguration getConfig() {
+		return topParser.getConfig();
+	}
+	
 }

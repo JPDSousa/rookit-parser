@@ -1,4 +1,4 @@
-package utils;
+package org.rookit.parser.utils;
 
 import java.io.IOException;
 import java.nio.file.Path;

@@ -10,30 +10,30 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.rookit.mongodb.DBManager;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
-import org.rookit.parser.utils.ParserValidator;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 
-class FormatParserWorker implements Runnable {
-	
-	private final ParserValidator validator;
+class SingleFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder> implements Runnable {
+
 	private final Queue<SingleTrackAlbumBuilder> results;
-	private final SingleTrackAlbumBuilder baseResult;
 	private final TrackFormat format;
 	private final String input;
-	private final ParserConfiguration<String, SingleTrackAlbumBuilder> config;
-	
-	FormatParserWorker(TrackFormat format, String input, SingleTrackAlbumBuilder baseResult, 
-			FormatParser parent, Queue<SingleTrackAlbumBuilder> results) {
-		super();
+	private final SingleTrackAlbumBuilder baseResult;
+
+	SingleFormatParser(TrackFormat format, String input, SingleTrackAlbumBuilder baseResult, 
+			Parser<String, SingleTrackAlbumBuilder> parent, Queue<SingleTrackAlbumBuilder> results) {
+		super(parent.getConfig());
 		this.format = format;
 		this.input = input;
-		this.baseResult = SingleTrackAlbumBuilder.create(baseResult);
-		this.validator = FormatParser.VALIDATOR;
 		this.results = results;
-		this.config = parent.getConfig();
+		this.baseResult = baseResult;
+	}
+
+	@Override
+	protected SingleTrackAlbumBuilder getDefaultBaseResult() {
+		return SingleTrackAlbumBuilder.create(baseResult);
 	}
 
 	private void log(String pathName, TrackFormat format, boolean success) {
@@ -43,20 +43,44 @@ class FormatParserWorker implements Runnable {
 				.append(pathName)
 				.append("' with: ")
 				.append(format);
-		validator.info(builder.toString());
+		VALIDATOR.info(builder.toString());
 	}
 
 	@Override
 	public void run() {
-		final SingleTrackAlbumBuilder result = parse(input, format, baseResult);
+		final SingleTrackAlbumBuilder result = parse(input);
 		if(result != null) {
 			results.add(result);
 		}
 		log(input, format, result != null);
 	}
-	
+
+	@Override
+	protected SingleTrackAlbumBuilder parseFromBaseResult(String token, SingleTrackAlbumBuilder baseResult) {
+		final Tokenizer tokenizer;
+		if(!format.fits(token)) {
+			return null;
+		}
+		try {
+			baseResult.attachFormat(format);
+			tokenizer = new Tokenizer();
+			tokenize(token, tokenizer, format, format.getDenormalizedSeparators(), format.getFields());
+			for(Field f : tokenizer.keySet()){
+				final List<String> tokens = tokenizer.get(f).stream()
+						.map(p -> p.getRight())
+						.collect(Collectors.toList());
+				f.setField(baseResult, tokens, getConfig());
+			}
+			baseResult.setScore(getScore(tokenizer, format));
+			return baseResult;
+		} catch (NumberFormatException e) {
+			VALIDATOR.handleParseException(e);
+			return null;
+		}
+	}
+
 	private int getScore(Tokenizer tokenizer, TrackFormat format) {
-		final DBManager db = config.getDBConnection();
+		final DBManager db = getConfig().getDBConnection();
 		final int tScore = tokenizer.getScore();
 		if(tScore > 0) {
 			int tfScore = db != null ? db.getTrackFormatOccurrences(format.toString()) : 0;
@@ -64,30 +88,7 @@ class FormatParserWorker implements Runnable {
 		}
 		return tScore;
 	}
-	
-	private SingleTrackAlbumBuilder parse(String pathName, TrackFormat format, SingleTrackAlbumBuilder track) {
-		final Tokenizer tokenizer;
-		if(!format.fits(pathName)) {
-			return null;
-		}
-		try {
-			track.attachFormat(format);
-			tokenizer = new Tokenizer();
-			tokenize(pathName, tokenizer, format, format.getDenormalizedSeparators(), format.getFields());
-			for(Field f : tokenizer.keySet()){
-				final List<String> tokens = tokenizer.get(f).stream()
-						.map(p -> p.getRight())
-						.collect(Collectors.toList());
-				f.setField(track, tokens, config);
-			}
-			track.setScore(getScore(tokenizer, format));
-			return track;
-		} catch (NumberFormatException e) {
-			validator.handleParseException(e);
-			return null;
-		}
-	}
-	
+
 
 	/**
 	 * <h1><center>Algorithm for format parsing<center></h1>
@@ -135,7 +136,7 @@ class FormatParserWorker implements Runnable {
 			}
 		}
 	}
-	
+
 	private <T> List<T> subList(List<T> list, int beginIndex) {
 		return list.subList(beginIndex, list.size());
 	}
@@ -188,7 +189,7 @@ class FormatParserWorker implements Runnable {
 		}
 		return tokens;
 	}
-	
+
 	private class Tokenizer {
 
 		private Map<Field, List<Pair<Integer, String>>> map;
@@ -206,7 +207,7 @@ class FormatParserWorker implements Runnable {
 				}
 			}
 		}
-		
+
 		private List<Pair<Integer, String>> get(Field field) {
 			List<Pair<Integer, String>> res = map.get(field);
 			if(res == null) {
@@ -217,7 +218,7 @@ class FormatParserWorker implements Runnable {
 		}
 
 		private void put(Field field, String token) {
-			final int score = field.getScore(token, config);
+			final int score = field.getScore(token, getConfig());
 			final Pair<Integer, String> entry = Pair.of(score, token);
 			get(field).add(entry);
 		}

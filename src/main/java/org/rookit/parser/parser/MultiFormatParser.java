@@ -38,18 +38,17 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 
-@SuppressWarnings("javadoc")
-public class FormatParser extends AbstractParser<String, SingleTrackAlbumBuilder> {
+class MultiFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder> {
 
 	private static final String[][] ENHANCEMENTS = {/*{"_", " "},*/
 			{"  ", " "},
 			{"�", "-"}};
 
-	static FormatParser create(ParserConfiguration<String, SingleTrackAlbumBuilder> configuration) {
-		return new FormatParser(configuration);
+	static MultiFormatParser create(ParserConfiguration configuration) {
+		return new MultiFormatParser(configuration);
 	}
 
-	private FormatParser(ParserConfiguration<String, SingleTrackAlbumBuilder> config){
+	private MultiFormatParser(ParserConfiguration config){
 		super(config);
 	}
 
@@ -78,8 +77,7 @@ public class FormatParser extends AbstractParser<String, SingleTrackAlbumBuilder
 
 	@Override
 	public Iterable<SingleTrackAlbumBuilder> parseAll(String path){
-		final SingleTrackAlbumBuilder builder = createEmptyResult();
-		final Iterable<SingleTrackAlbumBuilder> results =  parseAllLocal(path, builder);
+		final Iterable<SingleTrackAlbumBuilder> results =  parseAllLocal(path, getDefaultBaseResult());
 		final int limit = getConfig().getLimit();
 		if(limit > 0) {
 			return Iterables.limit(results, limit);
@@ -101,7 +99,7 @@ public class FormatParser extends AbstractParser<String, SingleTrackAlbumBuilder
 		formats.forEach(f -> validateRequiredFields(f));
 
 		for(TrackFormat format : getConfig().getFormats()) {
-			final Runnable worker = new FormatParserWorker(format, enhancedInput, baseResult, this, results);
+			final Runnable worker = new SingleFormatParser(format, enhancedInput, baseResult, this, results);
 			executor.execute(worker);
 		}
 		executor.shutdown();
@@ -117,5 +115,10 @@ public class FormatParser extends AbstractParser<String, SingleTrackAlbumBuilder
 		}
 
 		return true;
+	}
+
+	@Override
+	protected SingleTrackAlbumBuilder getDefaultBaseResult() {
+		return SingleTrackAlbumBuilder.create();
 	}
 }

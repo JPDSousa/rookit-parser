@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package parser;
+package org.rookit.parser.parser;
 
 import static org.junit.Assert.*;
 
@@ -43,16 +43,14 @@ import org.rookit.dm.parser.IgnoreField;
 import org.rookit.dm.track.Track;
 import org.rookit.parser.parser.Field;
 import org.rookit.parser.parser.Parser;
-import org.rookit.parser.parser.ParserConfiguration;
 import org.rookit.parser.parser.TrackFormat;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
-import org.rookit.parser.utils.TrackPath;
 import org.smof.gridfs.SmofGridRef;
 
 @SuppressWarnings("javadoc")
 public class ParserConfigurationTest {
 
-	private static ParserConfiguration<TrackPath, SingleTrackAlbumBuilder> config;
+	private static ParserConfiguration config;
 	
 	@Before
 	public void setUp() {

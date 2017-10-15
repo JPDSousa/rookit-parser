@@ -22,7 +22,7 @@
 /**
  * 
  */
-package parser;
+package org.rookit.parser.parser;
 
 import static org.junit.Assert.*;
 
@@ -34,25 +34,22 @@ import org.junit.Before;
 import org.junit.Test;
 import org.rookit.parser.parser.Field;
 import org.rookit.parser.parser.Parser;
-import org.rookit.parser.parser.ParserConfiguration;
 import org.rookit.parser.parser.ParserFactory;
-import org.rookit.parser.parser.TagParser;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
+import org.rookit.parser.utils.TestUtils;
 import org.rookit.parser.utils.TrackPath;
 
 import com.mpatric.mp3agic.Mp3File;
-
-import utils.TestUtils;
 
 @SuppressWarnings("javadoc")
 public class TagParserTest {
 
 	private static final ParserFactory PARSER_FACTORY = ParserFactory.create();
-	private static TagParser parser;
+	private static Parser<TrackPath, SingleTrackAlbumBuilder> parser;
 
 	@Before
 	public void setUp() {
-		final ParserConfiguration<TrackPath, SingleTrackAlbumBuilder> config = Parser.createConfiguration(SingleTrackAlbumBuilder.class);
+		final ParserConfiguration config = Parser.createConfiguration(SingleTrackAlbumBuilder.class);
 		config.withDbStorage(false)
 		.withRequiredFields(Field.getRequiredFields())
 		.withSetDate(true);
@@ -91,8 +88,8 @@ public class TagParserTest {
 	 */
 	@Test
 	public final void testEqualsObject() {
-		final TagParser p1 = PARSER_FACTORY.newTagParserWithDefaultConfiguration();
-		final TagParser p2 = PARSER_FACTORY.newTagParserWithDefaultConfiguration();
+		final Parser<TrackPath, SingleTrackAlbumBuilder> p1 = PARSER_FACTORY.newTagParserWithDefaultConfiguration();
+		final Parser<TrackPath, SingleTrackAlbumBuilder> p2 = PARSER_FACTORY.newTagParserWithDefaultConfiguration();
 		assertEquals(p2, p1);
 	}
 

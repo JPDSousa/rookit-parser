@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package result;
+package org.rookit.parser.result;
 
 import static org.junit.Assert.*;
 
@@ -37,11 +37,10 @@ import org.rookit.dm.track.TypeTrack;
 import org.rookit.dm.track.TypeVersion;
 import org.rookit.dm.utils.DMTestFactory;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
+import org.rookit.parser.utils.TestUtils;
 import org.rookit.parser.utils.TrackPath;
 
 import com.google.common.collect.Iterables;
-
-import utils.TestUtils;
 
 @SuppressWarnings("javadoc")
 public class SingleTrackAlbumBuilderTest {

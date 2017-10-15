@@ -17,12 +17,12 @@ class MapInputPipeline<I, CI, O extends Result<?>> extends AbstractParserPipelin
 
 	@Override
 	public O parse(I token) {
-		return topParser.build().parse(token);
+		return topParser.parse(token);
 	}
 
 	@Override
 	public <R extends Result<?>> O parse(I token, R baseResult) {
-		return topParser.build().parse(token, baseResult);
+		return topParser.parse(token, baseResult);
 	}
 
 	@Override
@@ -32,12 +32,17 @@ class MapInputPipeline<I, CI, O extends Result<?>> extends AbstractParserPipelin
 
 	@Override
 	public Iterable<O> parseAll(I token) {
-		return topParser.build().parseAll(token);
+		return topParser.parseAll(token);
 	}
 
 	@Override
 	public <R extends Result<?>> Iterable<O> parseAll(I token, R baseResult) {
-		return topParser.build().parseAll(token, baseResult);
+		return topParser.parseAll(token, baseResult);
+	}
+
+	@Override
+	public ParserConfiguration getConfig() {
+		return topParser.getConfig();
 	}
 
 }

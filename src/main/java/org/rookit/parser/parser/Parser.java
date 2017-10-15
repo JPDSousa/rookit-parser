@@ -26,7 +26,7 @@ import org.rookit.parser.result.Result;
 @SuppressWarnings({ "javadoc" })
 public interface Parser<T, R extends Result<?>> {
 
-	static <T, R extends Result<?>> ParserConfiguration<T, R> createConfiguration(Class<R> resultClass) {
+	static <R extends Result<?>> ParserConfiguration createConfiguration(Class<R> resultClass) {
 		return ParserConfiguration.create(resultClass);
 	}
 	
@@ -41,4 +41,6 @@ public interface Parser<T, R extends Result<?>> {
 	
 	@Override
 	int hashCode();
+
+	ParserConfiguration getConfig();
 }
