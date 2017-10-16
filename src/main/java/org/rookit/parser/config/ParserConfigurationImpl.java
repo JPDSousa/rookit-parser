@@ -19,11 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.rookit.parser.parser;
+package org.rookit.parser.config;
 
 import java.util.List;
 
 import org.rookit.mongodb.DBManager;
+import org.rookit.parser.parser.Field;
+import org.rookit.parser.parser.TrackFormat;
 import org.rookit.parser.result.Result;
 
 class ParserConfigurationImpl implements ParserConfiguration {

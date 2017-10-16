@@ -1,5 +1,6 @@
 package org.rookit.parser.parser;
 
+import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.result.Result;
 
 import com.google.common.collect.Lists;

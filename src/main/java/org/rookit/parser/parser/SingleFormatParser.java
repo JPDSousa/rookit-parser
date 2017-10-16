@@ -81,12 +81,12 @@ class SingleFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder>
 
 	private int getScore(Tokenizer tokenizer, TrackFormat format) {
 		final DBManager db = getConfig().getDBConnection();
-		final int tScore = tokenizer.getScore();
-		if(tScore > 0) {
-			int tfScore = db != null ? db.getTrackFormatOccurrences(format.toString()) : 0;
-			return tScore + tfScore;
+		final int tokenizerScore = tokenizer.getScore();
+		if(tokenizerScore > 0) {
+			int trackFormatScore = db != null ? db.getTrackFormatOccurrences(format.toString()) : 0;
+			return tokenizerScore + trackFormatScore;
 		}
-		return tScore;
+		return tokenizerScore;
 	}
 
 

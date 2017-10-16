@@ -32,6 +32,7 @@ import java.nio.file.Path;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.parser.Field;
 import org.rookit.parser.parser.Parser;
 import org.rookit.parser.parser.ParserFactory;

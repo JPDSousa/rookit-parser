@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.rookit.parser.parser;
 
+import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.result.Result;
 
 @SuppressWarnings({ "javadoc" })

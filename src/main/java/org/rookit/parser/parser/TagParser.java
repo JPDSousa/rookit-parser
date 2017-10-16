@@ -33,6 +33,7 @@ import org.rookit.dm.album.Album;
 import org.rookit.dm.album.AlbumFactory;
 import org.rookit.dm.artist.Artist;
 import org.rookit.dm.artist.ArtistFactory;
+import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.exceptions.SuspiciousCharSeqException;
 import org.rookit.parser.exceptions.SuspiciousDuplicateException;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;

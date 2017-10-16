@@ -1,8 +1,10 @@
-package org.rookit.parser.parser;
+package org.rookit.parser.config;
 
 import java.util.List;
 
 import org.rookit.mongodb.DBManager;
+import org.rookit.parser.parser.Field;
+import org.rookit.parser.parser.TrackFormat;
 import org.rookit.parser.result.Result;
 import org.rookit.parser.utils.ParserValidator;
 
