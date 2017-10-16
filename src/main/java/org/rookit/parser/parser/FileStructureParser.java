@@ -29,8 +29,7 @@ import org.rookit.parser.exceptions.UnknownFileSctrutureException;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
 import org.rookit.parser.utils.TrackPath;
 
-@SuppressWarnings("javadoc")
-public class FileStructureParser extends AbstractParser<TrackPath, SingleTrackAlbumBuilder> {
+class FileStructureParser extends AbstractParser<TrackPath, SingleTrackAlbumBuilder> {
 
 	private static enum StructureLevel{
 		STANDART(3, "\\ARTIST_NAME\\ALBUM_NAME\\TRACK_NAME"),
@@ -79,11 +78,11 @@ public class FileStructureParser extends AbstractParser<TrackPath, SingleTrackAl
 		}
 	}
 	
-	static FileStructureParser create(ParserConfiguration<TrackPath, SingleTrackAlbumBuilder> config) {
+	static FileStructureParser create(ParserConfiguration config) {
 		return new FileStructureParser(config);
 	}
 
-	private FileStructureParser(ParserConfiguration<TrackPath, SingleTrackAlbumBuilder> config){
+	private FileStructureParser(ParserConfiguration config){
 		super(config);
 	}
 
@@ -127,6 +126,11 @@ public class FileStructureParser extends AbstractParser<TrackPath, SingleTrackAl
 		}
 
 		return baseResult;
+	}
+
+	@Override
+	protected SingleTrackAlbumBuilder getDefaultBaseResult() {
+		return SingleTrackAlbumBuilder.create();
 	}
 	
 }

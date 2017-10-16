@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package parser;
+package org.rookit.parser.parser;
 
 import static org.junit.Assert.*;
 
@@ -34,22 +34,20 @@ import org.rookit.dm.track.Track;
 import org.rookit.dm.utils.PrintUtils;
 import org.rookit.parser.exceptions.InvalidSongFormatException;
 import org.rookit.parser.parser.Field;
-import org.rookit.parser.parser.FormatParser;
+import org.rookit.parser.parser.MultiFormatParser;
 import org.rookit.parser.parser.Parser;
-import org.rookit.parser.parser.ParserConfiguration;
 import org.rookit.parser.parser.ParserFactory;
 import org.rookit.parser.parser.TrackFormat;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
+import org.rookit.parser.utils.TestUtils;
 
 import com.google.common.collect.Iterables;
 
-import utils.TestUtils;
-
 @SuppressWarnings("javadoc")
-public class FormatParserTest {
+public class MultiFormatParserTest {
 
 	private static ParserFactory parserFactory;
-	private static FormatParser parser;
+	private static Parser<String, SingleTrackAlbumBuilder> parser;
 	
 	@BeforeClass
 	public static void setUp() {
@@ -58,7 +56,7 @@ public class FormatParserTest {
 	
 	@Before
 	public void before() throws IOException {
-		final ParserConfiguration<String, SingleTrackAlbumBuilder> config = Parser.createConfiguration(SingleTrackAlbumBuilder.class);
+		final ParserConfiguration config = Parser.createConfiguration(SingleTrackAlbumBuilder.class);
 		config.withDbStorage(false)
 		.withRequiredFields(Field.getRequiredFields())
 		.withSetDate(true)
@@ -68,8 +66,8 @@ public class FormatParserTest {
 	
 	@Test
 	public final void testEquals() {
-		final FormatParser p1 = parserFactory.newFormatParserWithDefaultConfiguration();
-		final FormatParser p2 = parserFactory.newFormatParserWithDefaultConfiguration();
+		final Parser<String, SingleTrackAlbumBuilder> p1 = parserFactory.newFormatParserWithDefaultConfiguration();
+		final Parser<String, SingleTrackAlbumBuilder> p2 = parserFactory.newFormatParserWithDefaultConfiguration();
 		assertEquals(p2, p1);
 	}
 	
@@ -111,12 +109,14 @@ public class FormatParserTest {
 
 	@Test
 	public final void testCheckSong() throws InvalidSongFormatException {
-		parser.checkSong(Paths.get("dir", "valid.mp3"));
+		((MultiFormatParser) parser).checkSong(Paths.get("dir", "valid.mp3"));
+		assertTrue(true);
 	}
 	
 	@Test(expected = InvalidSongFormatException.class)
 	public final void testCheckSongInvalidSongFormatException() throws InvalidSongFormatException {
-		parser.checkSong(Paths.get("dir", "invalid.wrongformat"));
+		((MultiFormatParser) parser).checkSong(Paths.get("dir", "invalid.wrongformat"));
+		fail("Should have thrown exception");
 	}
 	
 	

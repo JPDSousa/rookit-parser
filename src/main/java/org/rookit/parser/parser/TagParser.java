@@ -43,17 +43,16 @@ import com.mpatric.mp3agic.ID3v2;
 import com.mpatric.mp3agic.Mp3File;
 import com.mpatric.mp3agic.UnsupportedTagException;
 
-@SuppressWarnings("javadoc")
-public class TagParser extends AbstractParser<TrackPath, SingleTrackAlbumBuilder> {
+class TagParser extends AbstractParser<TrackPath, SingleTrackAlbumBuilder> {
 
 	private static final String[] SUSPICIOUS_STRINGS = {"   "};
 	private static final String[] SUSPICIOUS_DUPLICATE = {"-1"};
 	
-	static TagParser create(ParserConfiguration<TrackPath, SingleTrackAlbumBuilder> config) {
+	static TagParser create(ParserConfiguration config) {
 		return new TagParser(config);
 	}
 
-	private TagParser(ParserConfiguration<TrackPath, SingleTrackAlbumBuilder> config){
+	private TagParser(ParserConfiguration config){
 		super(config);
 	}
 
@@ -199,5 +198,10 @@ public class TagParser extends AbstractParser<TrackPath, SingleTrackAlbumBuilder
 				throw new SuspiciousDuplicateException(name);
 			}
 		}
+	}
+
+	@Override
+	protected SingleTrackAlbumBuilder getDefaultBaseResult() {
+		return SingleTrackAlbumBuilder.create();
 	}
 }

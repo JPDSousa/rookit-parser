@@ -24,8 +24,10 @@ package org.rookit.parser.parser;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.text.WordUtils;
 import org.rookit.mongodb.DBManager;
 import org.rookit.dm.artist.Artist;
@@ -58,7 +60,7 @@ enum Score {
 	}
 
 	public int getPoints() {
-		return points;
+		return -points;
 	}
 
 	public String[] getTokens() {
@@ -77,12 +79,12 @@ public enum Field {
 	 */
 	NUMBER(InitialScores.L2_VALUE){
 		@Override
-		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration<?, ?> context) {
+		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context) {
 			track.withNumber(Integer.parseInt(values.get(0)));
 		}
 
 		@Override
-		public int getScore(String value, ParserConfiguration<?, ?> context) {
+		public int getScore(String value, ParserConfiguration context) {
 			int isNumber = 1;
 			for(int i = 0; i < value.length() && isNumber>0; i++){
 				if(!Character.isDigit(value.charAt(i))){
@@ -98,12 +100,12 @@ public enum Field {
 	 */
 	TITLE(InitialScores.L2_VALUE) {
 		@Override
-		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration<?, ?> context) {
+		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context) {
 			track.withTitle(WordUtils.capitalizeFully(values.get(0)));
 		}
 
 		@Override
-		public int getScore(String value, ParserConfiguration<?, ?> context) {
+		public int getScore(String value, ParserConfiguration context) {
 			int isValid = 1;
 
 			for(String token : SUSPICIOUS_TITLE_CHARSEQS){
@@ -124,14 +126,14 @@ public enum Field {
 	 */
 	ARTIST(InitialScores.L2_VALUE) {
 		@Override
-		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration<?, ?> context) {			
+		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context) {			
 			track.withMainArtists(values.stream()
 					.flatMap(v -> ArtistFactory.getDefault().getArtistsFromFormat(v).stream())
 					.collect(Collectors.toSet()));
 		}
 
 		@Override
-		public int getScore(String value, ParserConfiguration<?, ?> context) {
+		public int getScore(String value, ParserConfiguration context) {
 			final DBManager db = context.getDBConnection();
 			int isValid = 1;
 			int dbScore = 0;
@@ -158,14 +160,14 @@ public enum Field {
 	 */
 	FEAT(InitialScores.L2_VALUE) {
 		@Override
-		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration<?, ?> context) {
+		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context) {
 			track.withFeatures(values.stream()
 					.flatMap(v -> ArtistFactory.getDefault().getArtistsFromFormat(v).stream())
 					.collect(Collectors.toSet()));
 		}
 
 		@Override
-		public int getScore(String value, ParserConfiguration<?, ?> context) {
+		public int getScore(String value, ParserConfiguration context) {
 			return ARTIST.getScore(value, context);
 		}
 	},
@@ -177,12 +179,12 @@ public enum Field {
 	 */
 	PRODUCER(InitialScores.L2_VALUE) {
 		@Override
-		public int getScore(String value, ParserConfiguration<?, ?> context) {
+		public int getScore(String value, ParserConfiguration context) {
 			return Field.ARTIST.getScore(value, context);
 		}
 
 		@Override
-		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration<?, ?> context) {
+		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context) {
 			track.withProducers(values.stream()
 					.flatMap(v -> ArtistFactory.getDefault().getArtistsFromFormat(v).stream())
 					.collect(Collectors.toSet()));
@@ -194,13 +196,13 @@ public enum Field {
 	 */
 	ALBUM(InitialScores.L2_VALUE) {
 		@Override
-		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration<?, ?> context) {
+		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context) {
 			final String title = WordUtils.capitalizeFully(values.get(0));
 			track.withAlbumTitle(title);
 		}
 
 		@Override
-		public int getScore(String value, ParserConfiguration<?, ?> context) {
+		public int getScore(String value, ParserConfiguration context) {
 			return super.getScore(value, context);
 		}
 	},	
@@ -211,13 +213,13 @@ public enum Field {
 	 */
 	TITLES(InitialScores.L2_VALUE) {
 		@Override
-		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration<?, ?> context)  {
+		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context)  {
 			TITLE.setField(track, values, context);
 			ALBUM.setField(track, values, context);
 		}
 
 		@Override
-		public int getScore(String value, ParserConfiguration<?, ?> context) {
+		public int getScore(String value, ParserConfiguration context) {
 			return TITLE.getScore(value, context)+ALBUM.getScore(value, context);
 		}
 	},
@@ -227,14 +229,14 @@ public enum Field {
 	 */
 	GENRE(InitialScores.L1_VALUE) {
 		@Override
-		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration<?, ?> context) {
+		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context) {
 			track.withGenres(values.stream()
 					.map(v -> GenreFactory.getDefault().createGenre(v))
 					.collect(Collectors.toSet()));
 		}
 
 		@Override
-		public int getScore(String value, ParserConfiguration<?, ?> context) {
+		public int getScore(String value, ParserConfiguration context) {
 			final DBManager db = context.getDBConnection();
 			final int dbScore;
 			if(context.isStoreDB()) {
@@ -250,12 +252,12 @@ public enum Field {
 	},
 	VERSION(InitialScores.L2_VALUE) {
 		@Override
-		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration<?, ?> context) {
+		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context) {
 			track.withTypeVersion(TypeVersion.parse(values.get(0)));
 		}
 
 		@Override
-		public int getScore(String value, ParserConfiguration<?, ?> context) {
+		public int getScore(String value, ParserConfiguration context) {
 			return Arrays.stream(TypeVersion.values())
 					.flatMap(version -> Arrays.stream(version.getTokens()))
 					.filter(token -> value.equalsIgnoreCase(token))
@@ -271,14 +273,14 @@ public enum Field {
 	 */
 	EXTRA(InitialScores.L2_VALUE) {
 		@Override
-		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration<?, ?> context) {
+		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context) {
 			track.withExtraArtists(values.stream()
 					.flatMap(v -> ArtistFactory.getDefault().getArtistsFromFormat(v).stream())
 					.collect(Collectors.toSet()));
 		}
 
 		@Override
-		public int getScore(String value, ParserConfiguration<?, ?> context) {
+		public int getScore(String value, ParserConfiguration context) {
 			return ARTIST.getScore(value, context);
 		}
 	},
@@ -289,13 +291,13 @@ public enum Field {
 	 */
 	ARTIST_EXTRA(InitialScores.L2_VALUE) {
 		@Override
-		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration<?, ?> context) {
+		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context) {
 			ARTIST.setField(track, values, context);
 			EXTRA.setField(track, values, context);
 		}
 
 		@Override
-		public int getScore(String value, ParserConfiguration<?, ?> context) {
+		public int getScore(String value, ParserConfiguration context) {
 			return ARTIST.getScore(value, context);
 		}
 	},
@@ -309,12 +311,12 @@ public enum Field {
 	 */
 	HIDDEN(InitialScores.L2_VALUE) {
 		@Override
-		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration<?, ?> context) {
+		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context) {
 			track.withHiddenTrack(values.get(0));
 		}
 
 		@Override
-		public int getScore(String value, ParserConfiguration<?, ?> context) {
+		public int getScore(String value, ParserConfiguration context) {
 			return TITLE.getScore(value, context);
 		}
 	},
@@ -326,12 +328,12 @@ public enum Field {
 	 */
 	IGNORE(InitialScores.NO_VALUE) {
 		@Override
-		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration<?, ?> context) {
+		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context) {
 			values.forEach(i -> track.withIgnore(i));
 		}
 
 		@Override
-		public int getScore(String value, ParserConfiguration<?, ?> context) {
+		public int getScore(String value, ParserConfiguration context) {
 			final DBManager db = context.getDBConnection();
 			final int occurrences = db != null ? db.getIgnoredOccurrences(value) : 0;
 			return super.getScore(value, context) + occurrences;
@@ -366,16 +368,20 @@ public enum Field {
 	 * @param value value of the field. Use the field's value only.
 	 * @return An integer with the score calculated based on the value.
 	 */
-	public int getScore(String value, ParserConfiguration<?, ?> context) {
+	public int getScore(String value, ParserConfiguration context) {
 		int score = this.score;
-		for(Score s : Score.values()) {
-			for(String token : s.getTokens()) {
-				if(StringUtils.containsIgnoreCase(value, token)) {
-					score -= s.getPoints();
-				}
-			}
-		}
-		return score;
+		return score + Arrays.stream(Score.values())
+				.flatMap(this::enpair)
+				.mapToInt(pair -> pair.getValue()*countMatchesIgnoreCase(value, pair.getKey()))
+				.sum();
+	}
+	
+	private int countMatchesIgnoreCase(String str, String sub) {
+		return StringUtils.countMatches(str.toLowerCase(), sub.toLowerCase());
+	}
+	
+	private Stream<Pair<String, Integer>> enpair(Score score) {
+		return Arrays.stream(score.getTokens()).map(token -> Pair.of(token, score.getPoints()));
 	}
 
 	/**
@@ -387,7 +393,7 @@ public enum Field {
 	 * as parameter.
 	 * @throws NumberFormatException thrown by {@link Field#NUMBER}. The value is not numeric.
 	 */
-	public abstract void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration<?, ?> context);
+	public abstract void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context);
 
 	/**
 	 * Returns a sub-set of fields with the required fields that all formats

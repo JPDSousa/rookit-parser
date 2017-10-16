@@ -13,11 +13,11 @@ class ParserPipelineImpl<I, CI, O extends Result<?>> extends AbstractParserPipel
 	}
 	
 	private O getBaseResult(I token) {
-		return topParser.build().parse(token);
+		return topParser.parse(token);
 	}
 	
 	private <R extends Result<?>> O getBaseResult(I token, R baseResult) {
-		return topParser.build().parse(token, baseResult);
+		return topParser.parse(token, baseResult);
 	}
 	
 	@Override
@@ -51,6 +51,11 @@ class ParserPipelineImpl<I, CI, O extends Result<?>> extends AbstractParserPipel
 	@Override
 	public CI input2CurrentInput(I input) {
 		return topParser.input2CurrentInput(input);
+	}
+
+	@Override
+	public ParserConfiguration getConfig() {
+		return parser.getConfig();
 	}
 
 }

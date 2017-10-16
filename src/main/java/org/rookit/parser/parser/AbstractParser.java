@@ -22,7 +22,6 @@
 package org.rookit.parser.parser;
 
 import org.rookit.parser.result.Result;
-import org.rookit.parser.result.ResultFactory;
 import org.rookit.parser.utils.ParserValidator;
 
 import com.google.common.collect.Lists;
@@ -31,23 +30,24 @@ abstract class AbstractParser<T, R extends Result<?>> implements Parser<T, R> {
 
 	protected static final ParserValidator VALIDATOR = ParserValidator.getDefault();
 	
-	private final ParserConfiguration<T, R> config;
-	private final ResultFactory resultFactory;
+	private final ParserConfiguration config;
 	
-	protected AbstractParser(ParserConfiguration<T, R> config){
+	protected AbstractParser(ParserConfiguration config){
 		this.config = config;
-		this.resultFactory = ResultFactory.getDefault(); 
 	}
 	
-	protected final ParserConfiguration<T, R> getConfig() {
+	protected abstract R getDefaultBaseResult();
+	
+	@Override
+	public final ParserConfiguration getConfig() {
 		return config;
 	}
 	
-	protected final R createEmptyResult() {
-		final Class<R> resultClass = config.getResultClass();
-		return resultFactory.newResult(resultClass);
+	@Override
+	public R parse(T token) {
+		return parseFromBaseResult(token, getDefaultBaseResult());
 	}
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public <R1 extends Result<?>> R parse(T token, R1 baseResult) {
@@ -69,13 +69,6 @@ abstract class AbstractParser<T, R extends Result<?>> implements Parser<T, R> {
 
 	protected abstract R parseFromBaseResult(T token, R baseResult);
 	
-	@Override
-	public final R parse(T token) {
-		return parseFromBaseResult(token, createEmptyResult());
-	}
-	
-	
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;

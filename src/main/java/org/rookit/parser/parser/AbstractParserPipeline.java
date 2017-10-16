@@ -5,14 +5,9 @@ import java.util.function.Function;
 import org.rookit.parser.result.Result;
 import org.rookit.parser.utils.ParserValidator;
 
-abstract class AbstractParserPipeline<I, CI, R extends Result<?>> implements ParserPipeline<I, CI, R>, Parser<I, R> {
+abstract class AbstractParserPipeline<I, CI, R extends Result<?>> implements ParserPipeline<I, CI, R> {
 	
 	protected static final ParserValidator VALIDATOR = ParserValidator.getDefault();
-
-	@Override
-	public Parser<I, R> build() {
-		return this;
-	}
 
 	@Override
 	public ParserPipeline<I, CI, R> insert(Parser<CI, R> parser) {

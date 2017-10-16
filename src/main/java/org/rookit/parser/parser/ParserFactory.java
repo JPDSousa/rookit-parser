@@ -37,11 +37,11 @@ public class ParserFactory {
 	
 	private ParserFactory() {}
 
-	private ParserConfiguration<TrackPath, SingleTrackAlbumBuilder> getDefaultTrackPathConfig() {
+	private ParserConfiguration getDefaultTrackPathConfig() {
 		return Parser.createConfiguration(SingleTrackAlbumBuilder.class);
 	}
 	
-	private ParserConfiguration<String, SingleTrackAlbumBuilder> getDefaultStringConfig() {
+	private ParserConfiguration getDefaultStringConfig() {
 		return Parser.createConfiguration(SingleTrackAlbumBuilder.class);
 	}
 	
@@ -54,43 +54,43 @@ public class ParserFactory {
 		return new BottomParserPipeline<>(baseResult);
 	}
 
-	public TagParser newTagParser(ParserConfiguration<TrackPath, SingleTrackAlbumBuilder> config) {
+	public Parser<TrackPath, SingleTrackAlbumBuilder> newTagParser(ParserConfiguration config) {
 		return TagParser.create(config);
 	}
 	
-	public TagParser newTagParserWithDefaultConfiguration() {
+	public Parser<TrackPath, SingleTrackAlbumBuilder> newTagParserWithDefaultConfiguration() {
 		return newTagParser(getDefaultTrackPathConfig());
 	}
 	
-	public TagParser newTagParserWithDbConnection(DBManager connection) {
+	public Parser<TrackPath, SingleTrackAlbumBuilder> newTagParserWithDbConnection(DBManager connection) {
 		return newTagParser(getDefaultTrackPathConfig().withDBConnection(connection));
 	}
 	
-	public FormatParser newFormatParser(ParserConfiguration<String, SingleTrackAlbumBuilder> config) {
-		return FormatParser.create(config);
+	public Parser<String, SingleTrackAlbumBuilder> newFormatParser(ParserConfiguration config) {
+		return MultiFormatParser.create(config);
 	}
 	
-	public FormatParser newFormatParserWithDefaultConfiguration() {
+	public Parser<String, SingleTrackAlbumBuilder> newFormatParserWithDefaultConfiguration() {
 		return newFormatParser(getDefaultStringConfig());
 	}
 	
-	public FormatParser newFormatParserWithDbConnection(DBManager connection) {
+	public Parser<String, SingleTrackAlbumBuilder> newFormatParserWithDbConnection(DBManager connection) {
 		return newFormatParser(getDefaultStringConfig().withDBConnection(connection));
 	}
 	
-	public FormatParser newFormatParserWithTrackFormats(List<TrackFormat> formats) {
+	public Parser<String, SingleTrackAlbumBuilder> newFormatParserWithTrackFormats(List<TrackFormat> formats) {
 		return newFormatParser(getDefaultStringConfig().withTrackFormats(formats));
 	}
 	
-	public FileStructureParser newFileStructureParser(ParserConfiguration<TrackPath, SingleTrackAlbumBuilder> config) {
+	public Parser<TrackPath, SingleTrackAlbumBuilder> newFileStructureParser(ParserConfiguration config) {
 		return FileStructureParser.create(config);
 	}
 	
-	public FileStructureParser newFileStructureParserWithDefaultConfiguration() {
+	public Parser<TrackPath, SingleTrackAlbumBuilder> newFileStructureParserWithDefaultConfiguration() {
 		return newFileStructureParser(getDefaultTrackPathConfig());
 	}
 	
-	public FileStructureParser newFileStructureParserWithDbConnection(DBManager connection) {
+	public Parser<TrackPath, SingleTrackAlbumBuilder> newFileStructureParserWithDbConnection(DBManager connection) {
 		return newFileStructureParser(getDefaultTrackPathConfig().withDBConnection(connection));
 	}
 }

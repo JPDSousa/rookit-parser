@@ -7,9 +7,12 @@ import com.google.common.collect.Lists;
 class BottomParserPipeline<I, O extends Result<?>> extends AbstractParserPipeline<I, I, O> {
 	
 	private final O baseResult;
+	private final ParserConfiguration defaultConfig;
 	
+	@SuppressWarnings("unchecked")
 	BottomParserPipeline(O baseResult) {
 		this.baseResult = baseResult;
+		defaultConfig = ParserConfiguration.create((Class<? extends Result<?>>) baseResult.getClass());
 	}
 
 	@Override
@@ -37,6 +40,11 @@ class BottomParserPipeline<I, O extends Result<?>> extends AbstractParserPipelin
 	@Override
 	public I input2CurrentInput(I input) {
 		return input;
+	}
+
+	@Override
+	public ParserConfiguration getConfig() {
+		return defaultConfig;
 	}
 
 }

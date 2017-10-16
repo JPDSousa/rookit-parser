@@ -1,4 +1,4 @@
-package parser;
+package org.rookit.parser.parser;
 
 import static org.junit.Assert.*;
 
@@ -32,9 +32,9 @@ public class ParserPipelineTest {
 		final SingleTrackAlbumBuilder baseResult = SingleTrackAlbumBuilder.create();
 		final ParserPipeline<String, String, SingleTrackAlbumBuilder> pipeline = factory.newParserPipeline(String.class, baseResult);
 		final String testStr = "someRandomString";
-		assertNotNull(pipeline.build());
+		assertNotNull(pipeline);
 		assertEquals(testStr, pipeline.input2CurrentInput(testStr));
-		assertEquals(baseResult, pipeline.build().parse(testStr));
+		assertEquals(baseResult, pipeline.parse(testStr));
 	}
 	
 	

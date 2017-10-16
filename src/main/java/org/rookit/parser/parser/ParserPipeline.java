@@ -3,10 +3,9 @@ package org.rookit.parser.parser;
 import java.util.function.Function;
 
 import org.rookit.parser.result.Result;
-import org.rookit.utils.builder.Builder;
 
 @SuppressWarnings("javadoc")
-public interface ParserPipeline<I, CI, O extends Result<?>> extends Builder<Parser<I, O>> {
+public interface ParserPipeline<I, CI, O extends Result<?>> extends Parser<I, O> {
 
 	ParserPipeline<I, CI, O> insert(Parser<CI, O> parser);
 	
