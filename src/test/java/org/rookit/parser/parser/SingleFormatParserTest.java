@@ -18,7 +18,7 @@ public class SingleFormatParserTest {
 	private static Parser<String, SingleTrackAlbumBuilder> parser;
 
 	@BeforeClass
-	public void setUpBeforeClass() throws Exception {
+	public static void setUpBeforeClass() throws Exception {
 		final ParserConfiguration config = Parser.createConfiguration(SingleTrackAlbumBuilder.class);
 		config.withDbStorage(false)
 		.withRequiredFields(Field.getRequiredFields())
