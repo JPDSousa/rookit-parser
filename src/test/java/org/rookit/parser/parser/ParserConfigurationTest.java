@@ -30,6 +30,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.rookit.mongodb.DBManager;
+import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.parser.Parser;
 import org.rookit.parser.parser.TrackFormat;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;

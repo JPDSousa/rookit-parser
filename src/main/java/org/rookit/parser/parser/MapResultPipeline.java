@@ -3,6 +3,7 @@ package org.rookit.parser.parser;
 import java.util.List;
 import java.util.function.Function;
 
+import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.result.Result;
 
 import com.google.common.collect.Lists;

@@ -1,5 +1,6 @@
 package org.rookit.parser.parser;
 
+import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.result.Result;
 
 import com.google.common.collect.Lists;
@@ -12,7 +13,7 @@ class BottomParserPipeline<I, O extends Result<?>> extends AbstractParserPipelin
 	@SuppressWarnings("unchecked")
 	BottomParserPipeline(O baseResult) {
 		this.baseResult = baseResult;
-		defaultConfig = ParserConfiguration.create((Class<? extends Result<?>>) baseResult.getClass());
+		defaultConfig = Parser.createConfiguration((Class<? extends Result<?>>) baseResult.getClass());
 	}
 
 	@Override

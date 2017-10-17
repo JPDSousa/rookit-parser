@@ -27,6 +27,7 @@ import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.exceptions.InvalidSongFormatException;
 import org.rookit.parser.exceptions.MissingRequiredFieldException;
 import org.rookit.parser.result.Result;

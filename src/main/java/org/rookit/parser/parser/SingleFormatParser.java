@@ -91,7 +91,7 @@ class SingleFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder>
 					+ trackFormatScore*getConfig().getTrackFormatPercentage(); 
 			return Math.round(finalScore);
 		}
-		return tScore;
+		return tokenizerScore;
 	}
 
 
