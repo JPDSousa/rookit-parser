@@ -36,6 +36,8 @@ class ParserConfigurationImpl implements ParserConfiguration {
 	private List<TrackFormat> formats;
 	private int limit;
 	
+	private float trackFormatPercentage;
+	
 	private DBManager database;
 	private boolean storeDB;
 	
@@ -146,6 +148,25 @@ class ParserConfigurationImpl implements ParserConfiguration {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public ParserConfiguration withFormatParserConfig(FormatParserConfig config) {
+		final String[] ratios = config.getScoreRatio().split(":");
+		final float tokenizerRatio = Integer.valueOf(ratios[0]);
+		final float trackFormatRatio = Integer.valueOf(ratios[1]);
+		trackFormatPercentage = trackFormatRatio/(trackFormatRatio+tokenizerRatio);  
+		return this;
+	}
+
+	@Override
+	public float getTrackFormatPercentage() {
+		return trackFormatPercentage;
+	}
+
+	@Override
+	public float getTokenizerPercentage() {
+		return 1-trackFormatPercentage;
 	}
 	
 }

@@ -13,9 +13,11 @@ public interface ParserConfiguration {
 
 	ParserValidator VALIDATOR = ParserValidator.getDefault();
 	
-	static ParserConfiguration create(Class<? extends Result<?>> resultClass) {
+	static ParserConfiguration create(Class<? extends Result<?>> resultClass, ParsingConfig mainConfig) {
 		VALIDATOR.checkArgumentNotNull(resultClass, "Must provide a result class");
-		return new ParserConfigurationImpl(resultClass);
+		return new ParserConfigurationImpl(resultClass)
+				.withLimit(mainConfig.getParserLimit())
+				.withFormatParserConfig(mainConfig.getFormatParser());
 	}
 
 	int getLimit();
@@ -31,6 +33,9 @@ public interface ParserConfiguration {
 	DBManager getDBConnection();
 
 	Class<? extends Result<?>> getResultClass();
+	
+	float getTrackFormatPercentage();
+	float getTokenizerPercentage();
 
 	ParserConfiguration withLimit(int limit);
 
@@ -43,5 +48,7 @@ public interface ParserConfiguration {
 	ParserConfiguration withSetDate(boolean setDate);
 
 	ParserConfiguration withDBConnection(DBManager connection);
+	
+	ParserConfiguration withFormatParserConfig(FormatParserConfig config);
 
 }
