@@ -26,6 +26,14 @@ public class SingleFormatParserTest {
 		.withTrackFormats(TestUtils.getTestFormats());
 		parser = ParserFactory.create().newFormatParser(config);
 	}
+	
+	@Test
+	public final void testResult1() {
+		final TrackFormat format = TrackFormat.create("<ARTIST_EXTRA> - <TITLES> <VERSION>");
+		final String input = "Dewian Gross - Free To Go";
+		parser = createParser(input, format);
+		assertNull(parser.parse(input));
+	}
 
 	@Test
 	public final void testScore1() {

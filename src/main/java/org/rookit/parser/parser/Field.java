@@ -48,8 +48,8 @@ interface InitialScores{
 }
 
 enum Score {
-	SEVERE(10, new String[]{"[", "]", " - ", "_"}),
-	LOW(2, new String[]{"featuring", "feat.", "feat ", "ft.", "ft "});
+	SEVERE(20, new String[]{"[", "]", " - ", "_"}),
+	LOW(10, new String[]{"featuring", "feat.", "feat ", "ft.", "ft "});
 
 	private final int points;
 	private final String[] tokens;
@@ -262,7 +262,7 @@ public enum Field {
 					.flatMap(version -> Arrays.stream(version.getTokens()))
 					.filter(token -> value.equalsIgnoreCase(token))
 					.findFirst()
-					.isPresent() ? super.getScore(value, context) : -20;
+					.isPresent() ? super.getScore(value, context) : Score.SEVERE.getPoints();
 		}
 	},
 	/**
@@ -369,6 +369,9 @@ public enum Field {
 	 * @return An integer with the score calculated based on the value.
 	 */
 	public int getScore(String value, ParserConfiguration context) {
+		if(value.isEmpty()) {
+			return Score.SEVERE.getPoints();
+		}
 		int score = this.score;
 		return score + Arrays.stream(Score.values())
 				.flatMap(this::enpair)
