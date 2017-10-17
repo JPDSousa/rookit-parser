@@ -65,6 +65,9 @@ class SingleFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder>
 			baseResult.attachFormat(format);
 			tokenizer = new Tokenizer();
 			tokenize(token, tokenizer, format, format.getDenormalizedSeparators(), format.getFields());
+			if(tokenizer.getFields().size() != format.getFields().size()) {
+				return null;
+			}
 			for(Field f : tokenizer.keySet()){
 				final List<String> tokens = tokenizer.get(f).stream()
 						.map(p -> p.getRight())
@@ -82,9 +85,11 @@ class SingleFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder>
 	private int getScore(Tokenizer tokenizer, TrackFormat format) {
 		final DBManager db = getConfig().getDBConnection();
 		final int tokenizerScore = tokenizer.getScore();
-		if(tokenizerScore > 0) {
-			int trackFormatScore = db != null ? db.getTrackFormatOccurrences(format.toString()) : 0;
-			return tokenizerScore + trackFormatScore;
+		if(tokenizerScore > 0 && getConfig().isStoreDB()) {
+			final int trackFormatScore = db.getTrackFormatOccurrences(format.toString());
+			final float finalScore = tokenizerScore*getConfig().getTokenizerPercentage() 
+					+ trackFormatScore*getConfig().getTrackFormatPercentage(); 
+			return Math.round(finalScore);
 		}
 		return tokenizerScore;
 	}
@@ -200,6 +205,10 @@ class SingleFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder>
 			valid = true;
 		}
 
+		public Set<Field> getFields() {
+			return map.keySet();
+		}
+
 		private void merge(Tokenizer tokenizer) {
 			if(tokenizer.valid) {
 				for(Field field : tokenizer.map.keySet()) {
@@ -242,7 +251,7 @@ class SingleFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder>
 			return map.values().stream()
 					.flatMap(l -> l.stream())
 					.mapToInt(p -> p.getLeft())
-					.sum();
+					.reduce(0, (left, right) -> (left < 0 || right < 0) ? Math.min(left, right) : left + right);
 		}
 
 		@Override
