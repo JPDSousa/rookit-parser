@@ -29,7 +29,7 @@ public class FormatParserConfig {
 	private String scoreRatio;
 
 	public String getScoreRatio() {
-		return getOrDefault(scoreRatio, "1:1");
+		return getOrDefault(scoreRatio, "9:1");
 	}
 
 	public void setScoreRatio(String scoreRatio) {
