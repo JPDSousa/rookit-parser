@@ -19,30 +19,57 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.rookit.parser.parser;
+package org.rookit.parser.config;
 
-import java.util.function.Function;
+import java.util.List;
 
+import org.rookit.mongodb.DBManager;
+import org.rookit.parser.parser.Field;
+import org.rookit.parser.parser.TrackFormat;
 import org.rookit.parser.result.Result;
 import org.rookit.parser.utils.ParserValidator;
 
-abstract class AbstractParserPipeline<I, CI, R extends Result<?>> implements ParserPipeline<I, CI, R> {
+@SuppressWarnings("javadoc")
+public interface ParserConfiguration {
+
+	ParserValidator VALIDATOR = ParserValidator.getDefault();
 	
-	protected static final ParserValidator VALIDATOR = ParserValidator.getDefault();
-
-	@Override
-	public ParserPipeline<I, CI, R> insert(Parser<CI, R> parser) {
-		return new ParserPipelineImpl<I, CI, R>(parser, this);
+	static ParserConfiguration create(Class<? extends Result<?>> resultClass, ParsingConfig mainConfig) {
+		VALIDATOR.checkArgumentNotNull(resultClass, "Must provide a result class");
+		return new ParserConfigurationImpl(resultClass)
+				.withLimit(mainConfig.getParserLimit())
+				.withFormatParserConfig(mainConfig.getFormatParser());
 	}
 
-	@Override
-	public <T> ParserPipeline<I, T, R> mapInput(Function<I, T> mapper) {
-		return new MapInputPipeline<>(mapper, this);
-	}
+	int getLimit();
 
-	@Override
-	public <R1 extends Result<?>> ParserPipeline<I, CI, R1> mapResult(Function<R, R1> mapper) {
-		return new MapResultPipeline<>(mapper, this);
-	}
+	List<TrackFormat> getFormats();
+
+	Field[] getRequiredFields();
+
+	boolean isSetDate();
+
+	boolean isStoreDB();
+
+	DBManager getDBConnection();
+
+	Class<? extends Result<?>> getResultClass();
+	
+	float getTrackFormatPercentage();
+	float getTokenizerPercentage();
+
+	ParserConfiguration withLimit(int limit);
+
+	ParserConfiguration withTrackFormats(List<TrackFormat> formats);
+
+	ParserConfiguration withDbStorage(boolean storeDB);
+
+	ParserConfiguration withRequiredFields(Field[] fields);
+
+	ParserConfiguration withSetDate(boolean setDate);
+
+	ParserConfiguration withDBConnection(DBManager connection);
+	
+	ParserConfiguration withFormatParserConfig(FormatParserConfig config);
 
 }

@@ -32,6 +32,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.rookit.dm.track.Track;
 import org.rookit.dm.utils.PrintUtils;
+import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.exceptions.InvalidSongFormatException;
 import org.rookit.parser.parser.Field;
 import org.rookit.parser.parser.MultiFormatParser;

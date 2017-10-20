@@ -25,6 +25,7 @@ import java.nio.file.Path;
 
 import org.rookit.dm.album.Album;
 import org.rookit.dm.artist.ArtistFactory;
+import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.exceptions.UnknownFileSctrutureException;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
 import org.rookit.parser.utils.TrackPath;
