@@ -36,6 +36,7 @@ import org.rookit.dm.genre.GenreFactory;
 import org.rookit.dm.track.Track;
 import org.rookit.dm.track.TrackFactory;
 import org.rookit.dm.track.TypeVersion;
+import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
 
 interface InitialScores{

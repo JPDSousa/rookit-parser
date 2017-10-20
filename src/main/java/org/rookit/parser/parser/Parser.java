@@ -21,13 +21,19 @@
  ******************************************************************************/
 package org.rookit.parser.parser;
 
+import org.rookit.parser.config.ParserConfiguration;
+import org.rookit.parser.config.ParsingConfig;
 import org.rookit.parser.result.Result;
 
 @SuppressWarnings({ "javadoc" })
 public interface Parser<T, R extends Result<?>> {
 
 	static <R extends Result<?>> ParserConfiguration createConfiguration(Class<R> resultClass) {
-		return ParserConfiguration.create(resultClass);
+		return ParserConfiguration.create(resultClass, new ParsingConfig());
+	}
+	
+	static <R extends Result<?>> ParserConfiguration createConfiguration(Class<R> resultClass, ParsingConfig config) {
+		return ParserConfiguration.create(resultClass, config);
 	}
 	
 	R parse(T token);

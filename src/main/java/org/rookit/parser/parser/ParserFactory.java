@@ -24,6 +24,7 @@ package org.rookit.parser.parser;
 import java.util.List;
 
 import org.rookit.mongodb.DBManager;
+import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.result.Result;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
 import org.rookit.parser.utils.TrackPath;
