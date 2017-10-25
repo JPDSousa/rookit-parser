@@ -229,16 +229,18 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	}
 
 	@Override
-	public void addGenre(Genre genre) {
+	public Void addGenre(Genre genre) {
 		if(genres == null) {
 			genres = Sets.newLinkedHashSet();
 		}
 		genres.add(genre);
+		return null;
 	}
 
 	@Override
-	public void setGenres(Set<Genre> genres) {
+	public Void setGenres(Set<Genre> genres) {
 		this.genres = genres;
+		return null;
 	}
 
 	public SingleTrackAlbumBuilder withHiddenTrack(String hiddenTrack) {
