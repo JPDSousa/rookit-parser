@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.rookit.parser.result;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -96,7 +97,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	private Set<Genre> genres;
 	private String hiddenTrack;
 	private final List<String> ignored;
-	private long duration;
+	private Duration duration;
 	
 	private final TrackFactory trackFactory;
 	private final AlbumFactory albumFactory;
@@ -203,12 +204,12 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		return this;
 	}
 	
-	public SingleTrackAlbumBuilder withDuration(long duration) {
+	public SingleTrackAlbumBuilder withDuration(Duration duration) {
 		this.duration = duration;
 		return this;
 	}
 	
-	public long getDuration() {
+	public Duration getDuration() {
 		return duration;
 	}
 

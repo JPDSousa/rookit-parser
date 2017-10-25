@@ -23,6 +23,7 @@ package org.rookit.parser.parser;
 
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -65,7 +66,7 @@ class TagParser extends AbstractParser<TrackPath, SingleTrackAlbumBuilder> {
 			isSuspicious(path.getPath());
 			mp3 = getMp3(path);
 			result.withPath(path);
-			result.withDuration(mp3.getLengthInMilliseconds());
+			result.withDuration(Duration.ofMillis(mp3.getLengthInMilliseconds()));
 			
 			if(mp3.hasId3v1Tag()){
 				setV1Tags(result, mp3.getId3v1Tag());
