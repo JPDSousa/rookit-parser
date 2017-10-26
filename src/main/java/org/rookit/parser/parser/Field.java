@@ -86,14 +86,14 @@ public enum Field {
 
 		@Override
 		public int getScore(String value, ParserConfiguration context) {
-			int isNumber = 1;
-			for(int i = 0; i < value.length() && isNumber>0; i++){
+			boolean isNumber = true;
+			for(int i = 0; i < value.length() && isNumber; i++){
 				if(!Character.isDigit(value.charAt(i))){
-					isNumber = -2;
+					isNumber = false;
 				}
 			}
 
-			return isNumber*super.getScore(value, context);
+			return super.getScore(value, context) + (isNumber ? 0 : Score.SEVERE.getPoints());
 		}
 	},
 	/**
@@ -107,16 +107,11 @@ public enum Field {
 
 		@Override
 		public int getScore(String value, ParserConfiguration context) {
-			int isValid = 1;
-
-			for(String token : SUSPICIOUS_TITLE_CHARSEQS){
-				if(value.contains(token)){
-					isValid = -1;
-					break;
-				}
-			}
-
-			return isValid*super.getScore(value, context);
+			boolean isValid = !Arrays.stream(SUSPICIOUS_TITLE_CHARSEQS)
+					.anyMatch(token -> value.contains(token));
+			final int score = super.getScore(value, context);
+			
+			return isValid ? score : score + Score.LOW.getPoints();
 		}
 	},
 
@@ -136,22 +131,17 @@ public enum Field {
 		@Override
 		public int getScore(String value, ParserConfiguration context) {
 			final DBManager db = context.getDBConnection();
-			int isValid = 1;
 			int dbScore = 0;
+			final boolean isValid = !Arrays.stream(Artist.SUSPICIOUS_NAME_CHARSEQS)
+					.anyMatch(token -> value.contains(token));
 
-			for(String token : Artist.SUSPICIOUS_NAME_CHARSEQS){
-				if(value.contains(token)){
-					isValid = -1;
-					break;
-				}
-			}
-			if(isValid > 0 && context.isStoreDB()) {
+			if(isValid && context.isStoreDB()) {
 				dbScore = db.getArtists()
 						.withName(value)
 						.first() != null ? 10 : -1;
 			}
 
-			return isValid*(super.getScore(value, context)+dbScore);
+			return super.getScore(value, context)+dbScore + (isValid ? 0 : Score.SEVERE.getPoints());
 		}
 	},
 	/**
@@ -261,9 +251,7 @@ public enum Field {
 		public int getScore(String value, ParserConfiguration context) {
 			return Arrays.stream(TypeVersion.values())
 					.flatMap(version -> Arrays.stream(version.getTokens()))
-					.filter(token -> value.equalsIgnoreCase(token))
-					.findFirst()
-					.isPresent() ? super.getScore(value, context) : Score.SEVERE.getPoints();
+					.anyMatch(token -> value.equalsIgnoreCase(token)) ? super.getScore(value, context) : Score.SEVERE.getPoints();
 		}
 	},
 	VTOKEN(InitialScores.NO_VALUE) {
