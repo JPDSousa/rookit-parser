@@ -266,6 +266,27 @@ public enum Field {
 					.isPresent() ? super.getScore(value, context) : Score.SEVERE.getPoints();
 		}
 	},
+	VTOKEN(InitialScores.NO_VALUE) {
+		@Override
+		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context) {
+			track.withVersionToken(values.get(0));
+		}
+		
+		@Override
+		public int getScore(String value, ParserConfiguration config) {
+			final DBManager db = config.getDBConnection();
+			final int dbScore;
+			if(config.isStoreDB()) {
+				dbScore = db.getTracks()
+						.withVersionToken(value)
+						.first() != null ? 10 : Score.LOW.getPoints();
+			}
+			else {
+				dbScore = 0;
+			}
+			return super.getScore(value, config) + dbScore;
+		}
+	},
 	/**
 	 * Extra artist(s)
 	 * <p> this field refers to the remix/cover artists.
