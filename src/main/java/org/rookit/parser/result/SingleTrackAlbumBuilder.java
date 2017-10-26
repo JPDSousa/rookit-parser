@@ -74,6 +74,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 				.withAlbumTitle(builder.albumTitle)
 				.withGenres(builder.genres)
 				.withDuration(builder.duration)
+				.withVersionToken(builder.versionToken)
 				.withHiddenTrack(builder.hiddenTrack);
 		builder.getIgnored().forEach(i -> clone.withIgnore(i));
 		clone.setScore(builder.getScore());
@@ -98,6 +99,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	private String hiddenTrack;
 	private final List<String> ignored;
 	private Duration duration;
+	private String versionToken;
 	
 	private final TrackFactory trackFactory;
 	private final AlbumFactory albumFactory;
@@ -154,6 +156,11 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 
 	public SingleTrackAlbumBuilder withExtraArtists(Set<Artist> extraArtists) {
 		this.extraArtists = extraArtists;
+		return this;
+	}
+	
+	public SingleTrackAlbumBuilder withVersionToken(String versionToken) {
+		this.versionToken = versionToken;
 		return this;
 	}
 	
@@ -382,20 +389,26 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((album == null) ? 0 : album.hashCode());
+		result = prime * result + ((albumFactory == null) ? 0 : albumFactory.hashCode());
 		result = prime * result + ((albumTitle == null) ? 0 : albumTitle.hashCode());
 		result = prime * result + Arrays.hashCode(cover);
 		result = prime * result + ((date == null) ? 0 : date.hashCode());
 		result = prime * result + ((disc == null) ? 0 : disc.hashCode());
+		result = prime * result + ((duration == null) ? 0 : duration.hashCode());
 		result = prime * result + ((extraArtists == null) ? 0 : extraArtists.hashCode());
 		result = prime * result + ((features == null) ? 0 : features.hashCode());
+		result = prime * result + ((format == null) ? 0 : format.hashCode());
 		result = prime * result + ((genres == null) ? 0 : genres.hashCode());
 		result = prime * result + ((hiddenTrack == null) ? 0 : hiddenTrack.hashCode());
+		result = prime * result + ((ignored == null) ? 0 : ignored.hashCode());
 		result = prime * result + ((mainArtists == null) ? 0 : mainArtists.hashCode());
 		result = prime * result + ((number == null) ? 0 : number.hashCode());
 		result = prime * result + ((path == null) ? 0 : path.hashCode());
 		result = prime * result + ((producers == null) ? 0 : producers.hashCode());
 		result = prime * result + ((title == null) ? 0 : title.hashCode());
+		result = prime * result + ((trackFactory == null) ? 0 : trackFactory.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + ((versionToken == null) ? 0 : versionToken.hashCode());
 		result = prime * result + ((versionType == null) ? 0 : versionType.hashCode());
 		return result;
 	}
@@ -417,6 +430,13 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 				return false;
 			}
 		} else if (!album.equals(other.album)) {
+			return false;
+		}
+		if (albumFactory == null) {
+			if (other.albumFactory != null) {
+				return false;
+			}
+		} else if (!albumFactory.equals(other.albumFactory)) {
 			return false;
 		}
 		if (albumTitle == null) {
@@ -443,6 +463,13 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		} else if (!disc.equals(other.disc)) {
 			return false;
 		}
+		if (duration == null) {
+			if (other.duration != null) {
+				return false;
+			}
+		} else if (!duration.equals(other.duration)) {
+			return false;
+		}
 		if (extraArtists == null) {
 			if (other.extraArtists != null) {
 				return false;
@@ -457,6 +484,13 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		} else if (!features.equals(other.features)) {
 			return false;
 		}
+		if (format == null) {
+			if (other.format != null) {
+				return false;
+			}
+		} else if (!format.equals(other.format)) {
+			return false;
+		}
 		if (genres == null) {
 			if (other.genres != null) {
 				return false;
@@ -469,6 +503,13 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 				return false;
 			}
 		} else if (!hiddenTrack.equals(other.hiddenTrack)) {
+			return false;
+		}
+		if (ignored == null) {
+			if (other.ignored != null) {
+				return false;
+			}
+		} else if (!ignored.equals(other.ignored)) {
 			return false;
 		}
 		if (mainArtists == null) {
@@ -506,7 +547,21 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		} else if (!title.equals(other.title)) {
 			return false;
 		}
+		if (trackFactory == null) {
+			if (other.trackFactory != null) {
+				return false;
+			}
+		} else if (!trackFactory.equals(other.trackFactory)) {
+			return false;
+		}
 		if (type != other.type) {
+			return false;
+		}
+		if (versionToken == null) {
+			if (other.versionToken != null) {
+				return false;
+			}
+		} else if (!versionToken.equals(other.versionToken)) {
 			return false;
 		}
 		if (versionType != other.versionType) {
@@ -530,9 +585,12 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 				+ ", producers=" + producers + ", path=" + path + ", disc=" + disc + ", number=" + number + ", cover="
 				+ Arrays.toString(cover) + ", album=" + album + ", date=" + date + ", albumTitle=" + albumTitle
 				+ ", genres=" + genres + ", hiddenTrack=" + hiddenTrack + ", ignored=" + ignored + ", duration="
-				+ duration + ", trackFactory=" + trackFactory + ", albumFactory=" + albumFactory + ", format=" + format
-				+ "]";
+				+ duration + ", versionToken=" + versionToken + ", trackFactory=" + trackFactory + ", albumFactory="
+				+ albumFactory + ", format=" + format + "]";
 	}
 	
+	public String gerVersionToken() {
+		return versionToken;
+	}
 	
 }
