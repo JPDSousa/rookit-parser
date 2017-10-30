@@ -23,17 +23,22 @@ package org.rookit.parser.result;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.bson.types.ObjectId;
 import org.rookit.dm.album.Album;
 import org.rookit.dm.album.AlbumFactory;
 import org.rookit.dm.album.TypeRelease;
 import org.rookit.dm.artist.Artist;
 import org.rookit.dm.genre.Genre;
 import org.rookit.dm.genre.Genreable;
+import org.rookit.dm.play.Playable;
 import org.rookit.dm.track.Track;
 import org.rookit.dm.track.TrackFactory;
 import org.rookit.dm.track.TypeTrack;
@@ -58,6 +63,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	public static SingleTrackAlbumBuilder create(SingleTrackAlbumBuilder builder) {
 		VALIDATOR.checkArgumentNotNull(builder, "Cannot clone null");
 		final SingleTrackAlbumBuilder clone = create()
+				.withId(builder.id)
 				.withType(builder.type)
 				.withTitle(builder.title)
 				.withTypeVersion(builder.versionType)
@@ -71,6 +77,10 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 				.withCover(builder.cover)
 				.withAlbum(builder.album)
 				.withDate(builder.date)
+				.withPlays(builder.plays)
+				.withSkipped(builder.skipped)
+				.withLastPlayed(builder.lastPlayed)
+				.withLastSkipped(builder.lastSkipped)
 				.withAlbumTitle(builder.albumTitle)
 				.withGenres(builder.genres)
 				.withDuration(builder.duration)
@@ -81,6 +91,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		return clone;
 	}
 	
+	private ObjectId id;
 	private TypeTrack type;
 	private String title;
 	private TypeVersion versionType;
@@ -100,6 +111,10 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	private final List<String> ignored;
 	private Duration duration;
 	private String versionToken;
+	private long plays;
+	private long skipped;
+	private LocalDate lastPlayed;
+	private LocalDate lastSkipped;
 	
 	private final TrackFactory trackFactory;
 	private final AlbumFactory albumFactory;
@@ -110,6 +125,11 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		this.trackFactory = trackFactory;
 		this.albumFactory = albumFactory;
 		this.ignored = Lists.newArrayList();
+	}
+	
+	public SingleTrackAlbumBuilder withId(ObjectId id) {
+		this.id = id;
+		return this;
 	}
 
 	public SingleTrackAlbumBuilder withType(TypeTrack type) {
@@ -147,6 +167,26 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	
 	public SingleTrackAlbumBuilder withTitle(String title) {
 		this.title = title;
+		return this;
+	}
+	
+	public SingleTrackAlbumBuilder withPlays(long plays) {
+		this.plays = plays;
+		return this;
+	}
+	
+	public SingleTrackAlbumBuilder withSkipped(long skipped) {
+		this.skipped = skipped;
+		return this;
+	}
+	
+	public SingleTrackAlbumBuilder withLastSkipped(LocalDate lastSkipped) {
+		this.lastSkipped = lastSkipped;
+		return this;
+	}
+	
+	public SingleTrackAlbumBuilder withLastPlayed(LocalDate lastPlayed) {
+		this.lastPlayed = lastPlayed;
 		return this;
 	}
 	
@@ -216,6 +256,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		return this;
 	}
 	
+	@Override
 	public Duration getDuration() {
 		return duration;
 	}
@@ -333,7 +374,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		}
 		fill(producers, a -> original.addProducer(a));
 		fillPaths(original);
-		original.setDuration(duration);
+		fillPlayable(original);
 		fillGenres(original);
 		setHiddenTrack(original);
 		return original;
@@ -367,10 +408,18 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		fill(extraArtists, a -> version.addVersionArtist(a));
 		fill(producers, a -> version.addProducer(a));
 		fillPaths(version);
-		version.setDuration(duration);
+		fillPlayable(version);
 		fillGenres(version);
 		setHiddenTrack(version);
 		return version;
+	}
+
+	private void fillPlayable(Playable playable) {
+		playable.setDuration(duration);
+		playable.setLastPlayed(lastPlayed);
+		playable.setLastSkipped(lastSkipped);
+		playable.setPlays(plays);
+		playable.setSkipped(skipped);
 	}
 
 	private void fill(Set<Artist> artists, Consumer<? super Artist> action) {
@@ -400,11 +449,16 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		result = prime * result + ((format == null) ? 0 : format.hashCode());
 		result = prime * result + ((genres == null) ? 0 : genres.hashCode());
 		result = prime * result + ((hiddenTrack == null) ? 0 : hiddenTrack.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((ignored == null) ? 0 : ignored.hashCode());
+		result = prime * result + ((lastPlayed == null) ? 0 : lastPlayed.hashCode());
+		result = prime * result + ((lastSkipped == null) ? 0 : lastSkipped.hashCode());
 		result = prime * result + ((mainArtists == null) ? 0 : mainArtists.hashCode());
 		result = prime * result + ((number == null) ? 0 : number.hashCode());
 		result = prime * result + ((path == null) ? 0 : path.hashCode());
+		result = prime * result + (int) (plays ^ (plays >>> 32));
 		result = prime * result + ((producers == null) ? 0 : producers.hashCode());
+		result = prime * result + (int) (skipped ^ (skipped >>> 32));
 		result = prime * result + ((title == null) ? 0 : title.hashCode());
 		result = prime * result + ((trackFactory == null) ? 0 : trackFactory.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
@@ -505,11 +559,32 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		} else if (!hiddenTrack.equals(other.hiddenTrack)) {
 			return false;
 		}
+		if (id == null) {
+			if (other.id != null) {
+				return false;
+			}
+		} else if (!id.equals(other.id)) {
+			return false;
+		}
 		if (ignored == null) {
 			if (other.ignored != null) {
 				return false;
 			}
 		} else if (!ignored.equals(other.ignored)) {
+			return false;
+		}
+		if (lastPlayed == null) {
+			if (other.lastPlayed != null) {
+				return false;
+			}
+		} else if (!lastPlayed.equals(other.lastPlayed)) {
+			return false;
+		}
+		if (lastSkipped == null) {
+			if (other.lastSkipped != null) {
+				return false;
+			}
+		} else if (!lastSkipped.equals(other.lastSkipped)) {
 			return false;
 		}
 		if (mainArtists == null) {
@@ -533,11 +608,17 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		} else if (!path.equals(other.path)) {
 			return false;
 		}
+		if (plays != other.plays) {
+			return false;
+		}
 		if (producers == null) {
 			if (other.producers != null) {
 				return false;
 			}
 		} else if (!producers.equals(other.producers)) {
+			return false;
+		}
+		if (skipped != other.skipped) {
 			return false;
 		}
 		if (title == null) {
@@ -580,17 +661,100 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 
 	@Override
 	public String toString() {
-		return "SingleTrackAlbumBuilder [type=" + type + ", title=" + title + ", versionType=" + versionType
-				+ ", extraArtists=" + extraArtists + ", mainArtists=" + mainArtists + ", features=" + features
-				+ ", producers=" + producers + ", path=" + path + ", disc=" + disc + ", number=" + number + ", cover="
-				+ Arrays.toString(cover) + ", album=" + album + ", date=" + date + ", albumTitle=" + albumTitle
-				+ ", genres=" + genres + ", hiddenTrack=" + hiddenTrack + ", ignored=" + ignored + ", duration="
-				+ duration + ", versionToken=" + versionToken + ", trackFactory=" + trackFactory + ", albumFactory="
-				+ albumFactory + ", format=" + format + "]";
+		return "SingleTrackAlbumBuilder [id=" + id + ", type=" + type + ", title=" + title + ", versionType="
+				+ versionType + ", extraArtists=" + extraArtists + ", mainArtists=" + mainArtists + ", features="
+				+ features + ", producers=" + producers + ", path=" + path + ", disc=" + disc + ", number=" + number
+				+ ", cover=" + Arrays.toString(cover) + ", album=" + album + ", date=" + date + ", albumTitle="
+				+ albumTitle + ", genres=" + genres + ", hiddenTrack=" + hiddenTrack + ", ignored=" + ignored
+				+ ", duration=" + duration + ", versionToken=" + versionToken + ", plays=" + plays + ", skipped="
+				+ skipped + ", lastPlayed=" + lastPlayed + ", lastSkipped=" + lastSkipped + ", trackFactory="
+				+ trackFactory + ", albumFactory=" + albumFactory + ", format=" + format + "]";
 	}
 	
 	public String gerVersionToken() {
 		return versionToken;
+	}
+
+	@Override
+	public LocalDate getLastPlayed() {
+		return lastPlayed;
+	}
+
+	@Override
+	public LocalDate getLastSkipped() {
+		return lastSkipped;
+	}
+
+	@Override
+	public long getPlays() {
+		return plays;
+	}
+
+	@Override
+	public long getSkipped() {
+		return skipped;
+	}
+
+	@Override
+	public Void play() {
+		plays++;
+		return null;
+	}
+
+	@Override
+	public Void setDuration(Duration duration) {
+		this.duration = duration;
+		return null;
+	}
+
+	@Override
+	public Void setLastPlayed(LocalDate lastPlayed) {
+		withLastPlayed(lastPlayed);
+		return null;
+	}
+
+	@Override
+	public Void setLastSkipped(LocalDate lastSkipped) {
+		withLastSkipped(lastSkipped);
+		return null;
+	}
+
+	@Override
+	public Void setPlays(long arg0) {
+		withPlays(arg0);
+		return null;
+	}
+
+	@Override
+	public Void setSkipped(long arg0) {
+		withSkipped(arg0);
+		return null;
+	}
+
+	@Override
+	public Void skip() {
+		skipped++;
+		return null;
+	}
+
+	@Override
+	public ObjectId getId() {
+		return id;
+	}
+
+	@Override
+	public String getIdAsString() {
+		return id.toHexString();
+	}
+
+	@Override
+	public LocalDateTime getStorageTime() {
+		return ZonedDateTime.ofInstant(id.getDate().toInstant(), ZoneId.systemDefault()).toLocalDateTime();
+	}
+
+	@Override
+	public void setId(ObjectId arg0) {
+		withId(arg0);
 	}
 	
 }
