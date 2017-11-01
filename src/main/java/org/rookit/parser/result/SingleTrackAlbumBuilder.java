@@ -28,9 +28,11 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.rookit.dm.album.Album;
 import org.rookit.dm.album.AlbumFactory;
@@ -49,6 +51,7 @@ import org.rookit.parser.utils.ParserValidator;
 import org.rookit.parser.utils.TrackPath;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 @SuppressWarnings("javadoc")
@@ -87,6 +90,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 				.withDuration(builder.duration)
 				.withVersionToken(builder.versionToken)
 				.withHiddenTrack(builder.hiddenTrack);
+		clone.externalMeta.putAll(builder.getExternalMetadata());
 		builder.getIgnored().forEach(i -> clone.withIgnore(i));
 		clone.setScore(builder.getScore());
 		return clone;
@@ -117,6 +121,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	private LocalDate lastPlayed;
 	private LocalDate lastSkipped;
 	private boolean explicit;
+	private final Map<String, Document> externalMeta;
 	
 	private final TrackFactory trackFactory;
 	private final AlbumFactory albumFactory;
@@ -127,6 +132,12 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		this.trackFactory = trackFactory;
 		this.albumFactory = albumFactory;
 		this.ignored = Lists.newArrayList();
+		this.externalMeta = Maps.newHashMap();
+	}
+	
+	public SingleTrackAlbumBuilder withExternalMetadata(String key, Document value) {
+		externalMeta.put(key, value);
+		return this;
 	}
 	
 	public SingleTrackAlbumBuilder withExplicit(boolean isExplicit) {
@@ -457,6 +468,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		result = prime * result + ((disc == null) ? 0 : disc.hashCode());
 		result = prime * result + ((duration == null) ? 0 : duration.hashCode());
 		result = prime * result + (explicit ? 1231 : 1237);
+		result = prime * result + ((externalMeta == null) ? 0 : externalMeta.hashCode());
 		result = prime * result + ((extraArtists == null) ? 0 : extraArtists.hashCode());
 		result = prime * result + ((features == null) ? 0 : features.hashCode());
 		result = prime * result + ((format == null) ? 0 : format.hashCode());
@@ -530,6 +542,13 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 			return false;
 		}
 		if (explicit != other.explicit) {
+			return false;
+		}
+		if (externalMeta == null) {
+			if (other.externalMeta != null) {
+				return false;
+			}
+		} else if (!externalMeta.equals(other.externalMeta)) {
 			return false;
 		}
 		if (extraArtists == null) {
@@ -669,7 +688,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 				+ albumTitle + ", genres=" + genres + ", hiddenTrack=" + hiddenTrack + ", ignored=" + ignored
 				+ ", duration=" + duration + ", versionToken=" + versionToken + ", plays=" + plays + ", skipped="
 				+ skipped + ", lastPlayed=" + lastPlayed + ", lastSkipped=" + lastSkipped + ", explicit=" + explicit
-				+ ", format=" + format + "]";
+				+ ", externalMeta=" + externalMeta + ", format=" + format + "]";
 	}
 	
 	public String gerVersionToken() {
@@ -756,6 +775,21 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	@Override
 	public void setId(ObjectId arg0) {
 		withId(arg0);
+	}
+
+	@Override
+	public Map<String, Document> getExternalMetadata() {
+		return externalMeta;
+	}
+
+	@Override
+	public Document getExternalMetadata(String arg0) {
+		return externalMeta.get(arg0);
+	}
+
+	@Override
+	public void putExternalMetadata(String arg0, Document arg1) {
+		withExternalMetadata(arg0, arg1);
 	}
 	
 }
