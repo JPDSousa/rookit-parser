@@ -440,9 +440,15 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	}
 
 	private void fillPlayable(Playable playable) {
-		playable.setDuration(duration);
-		playable.setLastPlayed(lastPlayed);
-		playable.setLastSkipped(lastSkipped);
+		if(duration != null) {
+			playable.setDuration(duration);
+		}
+		if(lastPlayed != null) {
+			playable.setLastPlayed(lastPlayed);
+		}
+		if(lastSkipped != null) {
+			playable.setLastSkipped(lastSkipped);
+		}
 		playable.setPlays(plays);
 		playable.setSkipped(skipped);
 	}
