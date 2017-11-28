@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -285,12 +286,12 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	}
 	
 	@Override
-	public Iterable<Genre> getAllGenres() {
+	public Collection<Genre> getAllGenres() {
 		return getGenres();
 	}
 
 	@Override
-	public Iterable<Genre> getGenres() {
+	public Collection<Genre> getGenres() {
 		return genres;
 	}
 
