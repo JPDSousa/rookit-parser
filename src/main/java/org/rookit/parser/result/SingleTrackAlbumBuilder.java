@@ -387,21 +387,31 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 
 	private Track buildTrack() {
 		final Track original = trackFactory.createOriginalTrack(title);
-		fill(original);
 		if(isVersion()) {
 			return createVersionOf(original);
 		}
-		setExplicit(original);
-		fill(producers, a -> original.addProducer(a));
-		fillPaths(original);
-		fillPlayable(original);
-		fillGenres(original);
-		setHiddenTrack(original);
+		fill(original);
 		return original;
 	}
 
-	private void setExplicit(Track track) {
+	private VersionTrack createVersionOf(Track original) {
+		final VersionTrack version = trackFactory.createVersionTrack(versionType, original);
+		fill(extraArtists, a -> version.addVersionArtist(a));
+		fill(producers, a -> version.addProducer(a));
+		fill(version);
+		return version;
+	}
+
+	private void fill(Track track) {
+		fill(mainArtists, a -> track.addMainArtist(a));
+		fill(features, a -> track.addFeature(a));
 		track.setExplicit(explicit);
+		fill(producers, a -> track.addProducer(a));
+		fillPaths(track);
+		fillPlayable(track);
+		track.getExternalMetadata().putAll(externalMeta);
+		fillGenres(track);
+		setHiddenTrack(track);
 	}
 
 	private boolean isVersion() {
@@ -427,18 +437,6 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		}
 	}
 
-	private VersionTrack createVersionOf(Track original) {
-		final VersionTrack version = trackFactory.createVersionTrack(versionType, original);
-		fill(extraArtists, a -> version.addVersionArtist(a));
-		fill(producers, a -> version.addProducer(a));
-		setExplicit(version);
-		fillPaths(version);
-		fillPlayable(version);
-		fillGenres(version);
-		setHiddenTrack(version);
-		return version;
-	}
-
 	private void fillPlayable(Playable playable) {
 		if(duration != null) {
 			playable.setDuration(duration);
@@ -457,11 +455,6 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		if(artists != null) {
 			artists.forEach(action);
 		}
-	}
-
-	private void fill(Track track) {
-		fill(mainArtists, a -> track.addMainArtist(a));
-		fill(features, a -> track.addFeature(a));
 	}
 
 	@Override

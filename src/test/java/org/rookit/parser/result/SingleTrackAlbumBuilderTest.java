@@ -139,7 +139,7 @@ public class SingleTrackAlbumBuilderTest {
 				.withGenres(genres)
 				.withHiddenTrack(hiddenTrack);
 		final Album album = builder.build();
-		final Track track = Iterables.get(album.getTracks(), 0);
+		final Track track = Iterables.get(album.getTracks(), 0).getTrack();
 		final byte[] actualCover = new byte[title.length()];
 		album.getCover().getAttachedByteArray().read(actualCover);
 		assertEquals(trackType, track.getType());

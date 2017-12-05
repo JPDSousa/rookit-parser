@@ -142,21 +142,12 @@ class TagParser extends AbstractParser<TrackPath, SingleTrackAlbumBuilder> {
 
 	private LocalDate getDate(String date) {
 		if(getConfig().isSetDate() && date != null){
-			try{
-				return LocalDate.parse(date, DateTimeFormatter.ofPattern(Album.DATE_FORMAT));
-			} catch (DateTimeParseException e){
-				return getAlternativeDate(date);
-			}
-		}
-		return null;
-	}
-
-	private LocalDate getAlternativeDate(String date) {
-		for(String format : Album.DATE_FORMAT_ALT){
-			try{
-				return LocalDate.parse(date, DateTimeFormatter.ofPattern(format));
-			} catch (DateTimeParseException e1){
-				continue;
+			for(String dateFormat : Album.DATE_FORMAT) {
+				try{
+					return LocalDate.parse(date, DateTimeFormatter.ofPattern(dateFormat));
+				} catch (DateTimeParseException e){
+					continue;
+				}				
 			}
 		}
 		VALIDATOR.info("Date format not recognized: " + date);

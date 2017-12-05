@@ -30,7 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.text.WordUtils;
 import org.rookit.mongodb.DBManager;
-import org.rookit.dm.artist.Artist;
 import org.rookit.dm.artist.ArtistFactory;
 import org.rookit.dm.genre.GenreFactory;
 import org.rookit.dm.track.Track;
@@ -132,7 +131,7 @@ public enum Field {
 		public int getScore(String value, ParserConfiguration context) {
 			final DBManager db = context.getDBConnection();
 			int dbScore = 0;
-			final boolean isValid = !Arrays.stream(Artist.SUSPICIOUS_NAME_CHARSEQS)
+			final boolean isValid = !Arrays.stream(MultiFormatParser.SUSPICIOUS_NAME_CHARSEQS)
 					.anyMatch(token -> value.contains(token));
 
 			if(isValid && context.isStoreDB()) {

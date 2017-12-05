@@ -41,7 +41,6 @@ import com.google.common.collect.Queues;
 
 class MultiFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder> {
 
-
 	public static final String[] SUSPICIOUS_NAME_CHARSEQS = new String[]{"- ", " -",  "[", "]", "{", "}", "~", "|", "�", ")", "("};	
 	private static final String[][] ENHANCEMENTS = {/*{"_", " "},*/
 			{"  ", " "},
