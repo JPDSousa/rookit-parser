@@ -32,7 +32,6 @@ import org.rookit.parser.result.SingleTrackAlbumBuilder;
 import org.rookit.parser.utils.TestUtils;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Queues;
 
 @SuppressWarnings("javadoc")
 public class SingleFormatParserTest {
@@ -78,7 +77,7 @@ public class SingleFormatParserTest {
 	
 	private Parser<String, SingleTrackAlbumBuilder> createParser(String input, TrackFormat format) {
 		final SingleTrackAlbumBuilder base = SingleTrackAlbumBuilder.create();
-		return new SingleFormatParser(format, input, base, parser, Queues.newArrayDeque());
+		return new SingleFormatParser(format, input, base, parser);
 	}
 
 }

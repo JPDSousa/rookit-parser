@@ -23,7 +23,7 @@ package org.rookit.parser.parser;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Queue;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -37,11 +37,14 @@ import org.rookit.parser.utils.PathUtils;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Queues;
+
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 
 class MultiFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder> {
-
-	public static final String[] SUSPICIOUS_NAME_CHARSEQS = new String[]{"- ", " -",  "[", "]", "{", "}", "~", "|", "�", ")", "("};	
+	
 	private static final String[][] ENHANCEMENTS = {/*{"_", " "},*/
 			{"  ", " "},
 			{"�", "-"}};
@@ -94,19 +97,25 @@ class MultiFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder> 
 	}
 
 	private Iterable<SingleTrackAlbumBuilder> parseAllLocal(String input, SingleTrackAlbumBuilder baseResult) {
-		final ExecutorService executor = Executors.newCachedThreadPool();
 		final String enhancedInput = enhanceInput(input);
-		final Queue<SingleTrackAlbumBuilder> results = Queues.newPriorityBlockingQueue();
 		final List<TrackFormat> formats = getConfig().getFormats();
 		formats.forEach(f -> validateRequiredFields(f));
-
-		for(TrackFormat format : getConfig().getFormats()) {
-			final Runnable worker = new SingleFormatParser(format, enhancedInput, baseResult, this, results);
-			executor.execute(worker);
+		final int nThreads = formats.size()/2;
+		final ExecutorService executor;
+		if (nThreads > 1) {
+			executor = Executors.newFixedThreadPool(nThreads);
 		}
-		executor.shutdown();
-		while(!executor.isTerminated()) {;}
-		return results;
+		else {
+			executor = Executors.newSingleThreadExecutor();
+		}
+		final Scheduler scheduler = Schedulers.from(executor);
+
+		return Observable.fromIterable(formats)
+		.flatMapSingle(format -> Single.fromCallable(new SingleFormatParser(format, enhancedInput, baseResult, this))
+				.observeOn(scheduler))
+		.filter(Optional::isPresent)
+		.map(Optional::get)
+		.blockingIterable();
 	}
 
 	public boolean checkSong(Path f) throws InvalidSongFormatException {
