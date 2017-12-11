@@ -28,6 +28,8 @@ import org.rookit.parser.result.Result;
 @SuppressWarnings({ "javadoc" })
 public interface Parser<T, R extends Result<?>> {
 
+	String[] SUSPICIOUS_NAME_CHARSEQS = new String[]{"- ", " -",  "[", "]", "{", "}", "~", "|", "�", ")", "("};
+	
 	static <R extends Result<?>> ParserConfiguration createConfiguration(Class<R> resultClass) {
 		return ParserConfiguration.create(resultClass, new ParsingConfig());
 	}

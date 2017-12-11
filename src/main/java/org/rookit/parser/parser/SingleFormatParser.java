@@ -23,8 +23,10 @@ package org.rookit.parser.parser;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -36,19 +38,17 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 
-class SingleFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder> implements Runnable {
+class SingleFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder> implements Callable<Optional<SingleTrackAlbumBuilder>> {
 
-	private final Queue<SingleTrackAlbumBuilder> results;
 	private final TrackFormat format;
 	private final String input;
 	private final SingleTrackAlbumBuilder baseResult;
 
 	SingleFormatParser(TrackFormat format, String input, SingleTrackAlbumBuilder baseResult, 
-			Parser<String, SingleTrackAlbumBuilder> parent, Queue<SingleTrackAlbumBuilder> results) {
+			Parser<String, SingleTrackAlbumBuilder> parent) {
 		super(parent.getConfig());
 		this.format = format;
 		this.input = input;
-		this.results = results;
 		this.baseResult = baseResult;
 	}
 
@@ -68,12 +68,10 @@ class SingleFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder>
 	}
 
 	@Override
-	public void run() {
+	public Optional<SingleTrackAlbumBuilder> call() throws Exception {
 		final SingleTrackAlbumBuilder result = parse(input);
-		if(result != null) {
-			results.add(result);
-		}
 		log(input, format, result != null);
+		return Optional.ofNullable(result);
 	}
 
 	@Override
