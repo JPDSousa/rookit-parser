@@ -104,6 +104,16 @@ public class SingleTrackAlbumBuilderTest {
 	public final void testMultipleVersions() {
 		guineaPig.withTypeVersion(FACTORY.getRandomVersionType());
 	}
+	
+	@Test
+	public final void testEmptyBuilderValidDisc() {
+		final Album album = FACTORY.getRandomAlbum();
+		final Track track = FACTORY.getRandomTrack();
+		final String disc = guineaPig.getDisc();
+		assertNotNull(guineaPig.getDisc());
+		album.addTrack(track, 1, disc);
+		
+	}
 
 	@Test
 	public final void testBuild() throws IOException {
