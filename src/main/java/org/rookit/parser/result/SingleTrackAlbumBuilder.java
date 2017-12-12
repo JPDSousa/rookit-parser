@@ -330,7 +330,12 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		final Track track = buildTrack();
 		final TypeRelease release = fromTrack(track);
 		final Album album = getAlbum(release);
-		album.addTrack(track, number, disc);
+		if(number <= 0) {
+			album.addTrackLast(track, disc);
+		}
+		else {
+			album.addTrack(track, number, disc);
+		}
 		if(cover != null) {
 			album.setCover(cover);	
 		}
