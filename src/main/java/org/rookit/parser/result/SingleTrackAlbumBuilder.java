@@ -134,6 +134,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		this.albumFactory = albumFactory;
 		this.ignored = Lists.newArrayList();
 		this.externalMeta = Maps.newHashMap();
+		this.disc = Album.DEFAULT_DISC;
 	}
 	
 	public SingleTrackAlbumBuilder withExternalMetadata(String key, Document value) {
