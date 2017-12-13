@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Set;
 
+import org.bson.types.ObjectId;
 import org.junit.Before;
 import org.junit.Test;
 import org.rookit.dm.album.Album;
@@ -46,7 +47,7 @@ import com.google.common.collect.Iterables;
 public class SingleTrackAlbumBuilderTest {
 
 	private static final DMTestFactory FACTORY = DMTestFactory.getDefault();
-	private static SingleTrackAlbumBuilder guineaPig; 
+	private static SingleTrackAlbumBuilder guineaPig;
 	
 	@Before
 	public void setUp() {
@@ -72,7 +73,7 @@ public class SingleTrackAlbumBuilderTest {
 
 	@Test
 	public final void testCreate() {
-		assertNotNull(SingleTrackAlbumBuilderTest.class);
+		assertNotNull(SingleTrackAlbumBuilder.create());
 	}
 	
 	@Test
@@ -102,7 +103,9 @@ public class SingleTrackAlbumBuilderTest {
 	
 	@Test
 	public final void testMultipleVersions() {
-		guineaPig.withTypeVersion(FACTORY.getRandomVersionType());
+		final TypeVersion versionType = FACTORY.getRandomVersionType();
+		guineaPig.withTypeVersion(versionType);
+		assertEquals(versionType, guineaPig.getTypeVersion());
 	}
 	
 	@Test
@@ -112,7 +115,13 @@ public class SingleTrackAlbumBuilderTest {
 		final String disc = guineaPig.getDisc();
 		assertNotNull(guineaPig.getDisc());
 		album.addTrack(track, 1, disc);
-		
+	}
+	
+	@Test
+	public final void testId() {
+		final ObjectId id = new ObjectId();
+		guineaPig.withId(id);
+		assertEquals(id, guineaPig.getId());
 	}
 
 	@Test

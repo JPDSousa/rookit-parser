@@ -107,7 +107,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	private Set<Artist> producers;
 	private TrackPath path;
 	private String disc;
-	private Integer number;
+	private int number;
 	private byte[] cover;
 	private Album album;
 	private LocalDate date;
@@ -485,7 +485,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		result = prime * result + ((lastPlayed == null) ? 0 : lastPlayed.hashCode());
 		result = prime * result + ((lastSkipped == null) ? 0 : lastSkipped.hashCode());
 		result = prime * result + ((mainArtists == null) ? 0 : mainArtists.hashCode());
-		result = prime * result + ((number == null) ? 0 : number.hashCode());
+		result = prime * result + number;
 		result = prime * result + ((path == null) ? 0 : path.hashCode());
 		result = prime * result + (int) (plays ^ (plays >>> 32));
 		result = prime * result + ((producers == null) ? 0 : producers.hashCode());
@@ -627,11 +627,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		} else if (!mainArtists.equals(other.mainArtists)) {
 			return false;
 		}
-		if (number == null) {
-			if (other.number != null) {
-				return false;
-			}
-		} else if (!number.equals(other.number)) {
+		if (number != other.number) {
 			return false;
 		}
 		if (path == null) {
