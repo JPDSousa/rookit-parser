@@ -22,6 +22,7 @@
 package org.rookit.parser.parser;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 import org.rookit.parser.config.ParserConfiguration;
@@ -46,15 +47,15 @@ class MapResultPipeline<I, CI, NO extends Result<?>, O extends Result<?>> extend
 	}
 
 	@Override
-	public NO parse(I token) {
-		final O baseResult = topParser.parse(token);
-		return mapper.apply(baseResult);
+	public Optional<NO> parse(I token) {
+		final Optional<O> baseResult = topParser.parse(token);
+		return Optional.ofNullable(mapper.apply(baseResult.orElse(null)));
 	}
 
 	@Override
-	public <Z extends Result<?>> NO parse(I token, Z baseResult) {
-		final O baseResult1 = topParser.parse(token, baseResult);
-		return mapper.apply(baseResult1);
+	public <Z extends Result<?>> Optional<NO> parse(I token, Z baseResult) {
+		final Optional<O> baseResult1 = topParser.parse(token, baseResult);
+		return Optional.ofNullable(mapper.apply(baseResult1.orElse(null)));
 	}
 
 	@Override

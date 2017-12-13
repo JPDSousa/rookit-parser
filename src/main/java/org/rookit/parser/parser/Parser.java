@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.rookit.parser.parser;
 
+import java.util.Optional;
+
 import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.config.ParsingConfig;
 import org.rookit.parser.result.Result;
@@ -38,8 +40,8 @@ public interface Parser<T, R extends Result<?>> {
 		return ParserConfiguration.create(resultClass, config);
 	}
 	
-	R parse(T token);
-	<O extends Result<?>> R parse(T token, O baseResult);
+	Optional<R> parse(T token);
+	<O extends Result<?>> Optional<R> parse(T token, O baseResult);
 	
 	Iterable<R> parseAll(T token);
 	<O extends Result<?>> Iterable<R> parseAll(T token, O baseResult);

@@ -69,23 +69,23 @@ class SingleFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder>
 
 	@Override
 	public Optional<SingleTrackAlbumBuilder> call() throws Exception {
-		final SingleTrackAlbumBuilder result = parse(input);
-		log(input, format, result != null);
-		return Optional.ofNullable(result);
+		final Optional<SingleTrackAlbumBuilder> result = parse(input);
+		log(input, format, result.isPresent());
+		return result;
 	}
 
 	@Override
-	protected SingleTrackAlbumBuilder parseFromBaseResult(String token, SingleTrackAlbumBuilder baseResult) {
+	protected Optional<SingleTrackAlbumBuilder> parseFromBaseResult(String token, SingleTrackAlbumBuilder baseResult) {
 		final Tokenizer tokenizer;
 		if(!format.fits(token)) {
-			return null;
+			return Optional.empty();
 		}
 		try {
 			baseResult.attachFormat(format);
 			tokenizer = new Tokenizer();
 			tokenize(token, tokenizer, format, format.getDenormalizedSeparators(), format.getFields());
 			if(tokenizer.getFields().size() != format.getFields().size()) {
-				return null;
+				return Optional.empty();
 			}
 			for(Field f : tokenizer.keySet()){
 				final List<String> tokens = tokenizer.get(f).stream()
@@ -94,10 +94,10 @@ class SingleFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder>
 				f.setField(baseResult, tokens, getConfig());
 			}
 			baseResult.setScore(getScore(tokenizer, format));
-			return baseResult;
+			return Optional.of(baseResult);
 		} catch (NumberFormatException e) {
 			VALIDATOR.handleParseException(e);
-			return null;
+			return Optional.empty();
 		}
 	}
 

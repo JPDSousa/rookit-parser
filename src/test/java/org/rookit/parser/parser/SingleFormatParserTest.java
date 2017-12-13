@@ -24,6 +24,7 @@ package org.rookit.parser.parser;
 import static org.junit.Assert.*;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -53,7 +54,7 @@ public class SingleFormatParserTest {
 		final TrackFormat format = TrackFormat.create("<ARTIST_EXTRA> - <TITLES> <VERSION>");
 		final String input = "Dewian Gross - Free To Go";
 		parser = createParser(input, format);
-		assertNull(parser.parse(input));
+		assertFalse(parser.parse(input).isPresent());
 	}
 
 	@Test
@@ -65,14 +66,15 @@ public class SingleFormatParserTest {
 		final TrackFormat format = TrackFormat.create("<ARTIST> - <TITLES> (feat. <FEAT>)");
 		final Parser<String, SingleTrackAlbumBuilder> parser = createParser(input, format);
 		final Map<Field, String> values = Maps.newLinkedHashMap();
-		final SingleTrackAlbumBuilder result = parser.parse(input);
+		final Optional<SingleTrackAlbumBuilder> result = parser.parse(input);
 		values.put(Field.ARTIST, artist1);
 		values.put(Field.TITLES, track1);
 		values.put(Field.FEAT, artist2);
 		final int expected = values.keySet().stream()
 				.mapToInt(field -> field.getScore(values.get(field), parser.getConfig()))
 				.sum();
-		assertEquals(expected, result.getScore());
+		assertTrue(result.isPresent());
+		assertEquals(expected, result.get().getScore());
 	}
 	
 	private Parser<String, SingleTrackAlbumBuilder> createParser(String input, TrackFormat format) {

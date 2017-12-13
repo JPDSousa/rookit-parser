@@ -26,6 +26,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -101,11 +102,12 @@ public class MultiFormatParserTest {
 		final String ignore = "Ignore me";
 		final String str = String.format("%s - %s (%s)", artist, title, ignore);
 		parser = parserFactory.newFormatParserWithTrackFormats(Arrays.asList(format));
-		final SingleTrackAlbumBuilder result = parser.parse(str, SingleTrackAlbumBuilder.create());
-		final Track track = result.getTrack();
+		final Optional<SingleTrackAlbumBuilder> result = parser.parse(str, SingleTrackAlbumBuilder.create());
+		assertTrue(result.isPresent());
+		final Track track = result.get().getTrack();
 		assertEquals(artist, Iterables.get(track.getMainArtists(), 0).getName());
 		assertEquals(title, track.getTitle().getTitle());
-		assertEquals(ignore, result.getIgnored().get(0));
+		assertEquals(ignore, result.get().getIgnored().get(0));
 	}
 
 	@Test
@@ -126,8 +128,8 @@ public class MultiFormatParserTest {
 		final TrackFormat format = TrackFormat.create("[<GENRE>] - <ARTIST> ft. <FEAT> - <TITLES> (<EXTRA> <VERSION>)");
 		final String ex = "[Progressive] -  Ale Q & Avedon Ft. Jonathan Mendelsohn -  Open My Eyes (Tom Swoon Edit)";
 		parser = parserFactory.newFormatParserWithTrackFormats(Arrays.asList(format));
-		final SingleTrackAlbumBuilder result = parser.parse(ex, SingleTrackAlbumBuilder.create());
-		System.out.println(PrintUtils.track(result.getTrack()));
+		final Optional<SingleTrackAlbumBuilder> result = parser.parse(ex, SingleTrackAlbumBuilder.create());
+		System.out.println(PrintUtils.track(result.get().getTrack()));
 	}
 	
 }

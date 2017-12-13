@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.rookit.parser.parser;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 import org.rookit.parser.config.ParserConfiguration;
@@ -38,12 +39,12 @@ class MapInputPipeline<I, CI, O extends Result<?>> extends AbstractParserPipelin
 	}
 
 	@Override
-	public O parse(I token) {
+	public Optional<O> parse(I token) {
 		return topParser.parse(token);
 	}
 
 	@Override
-	public <R extends Result<?>> O parse(I token, R baseResult) {
+	public <R extends Result<?>> Optional<O> parse(I token, R baseResult) {
 		return topParser.parse(token, baseResult);
 	}
 

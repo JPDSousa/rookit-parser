@@ -22,6 +22,7 @@
 package org.rookit.parser.parser;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 import org.rookit.dm.album.Album;
 import org.rookit.dm.artist.ArtistFactory;
@@ -93,7 +94,7 @@ class FileStructureParser extends AbstractParser<TrackPath, SingleTrackAlbumBuil
 	}
 
 	@Override
-	protected SingleTrackAlbumBuilder parseFromBaseResult(TrackPath trackPath, SingleTrackAlbumBuilder baseResult) {
+	protected Optional<SingleTrackAlbumBuilder> parseFromBaseResult(TrackPath trackPath, SingleTrackAlbumBuilder baseResult) {
 		final ArtistFactory artistFactory = ArtistFactory.getDefault();
 		final String albumName;
 		final String artistName;
@@ -126,7 +127,7 @@ class FileStructureParser extends AbstractParser<TrackPath, SingleTrackAlbumBuil
 			return null;
 		}
 
-		return baseResult;
+		return Optional.ofNullable(baseResult);
 	}
 
 	@Override

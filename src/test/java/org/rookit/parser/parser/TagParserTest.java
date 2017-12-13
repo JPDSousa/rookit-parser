@@ -29,6 +29,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -63,9 +64,9 @@ public class TagParserTest {
 	@Test
 	public final void testParse() {
 		final TrackPath trackPath = TestUtils.getRandomTrackPath();
-		final SingleTrackAlbumBuilder result = parser.parse(trackPath);
-		assertNotNull(result);
-		assertEquals(trackPath.getDurationMiliSec(), result.getDuration().toMillis());
+		final Optional<SingleTrackAlbumBuilder> result = parser.parse(trackPath);
+		assertTrue(result.isPresent());
+		assertEquals(trackPath.getDurationMiliSec(), result.get().getDuration().toMillis());
 	}
 	
 	@Test
@@ -73,6 +74,7 @@ public class TagParserTest {
 		final SingleTrackAlbumBuilder expected = SingleTrackAlbumBuilder.create();
 		final Path sourcePath = TestUtils.getRandomTrackPath().getPath();
 		final Path targetPath = sourcePath.getParent().resolve("test.mp3");
+		Files.deleteIfExists(targetPath);
 		Files.copy(sourcePath, targetPath);
 		final TrackPath trackPath = TrackPath.create(targetPath);
 		final Mp3File mp3 = trackPath.getMp3();
@@ -80,7 +82,9 @@ public class TagParserTest {
 		mp3.removeId3v1Tag();
 		mp3.removeId3v2Tag();
 		trackPath.updateMP3(mp3);
-		assertEquals(expected, parser.parse(trackPath, expected));
+		final Optional<SingleTrackAlbumBuilder> result = parser.parse(trackPath, expected);
+		assertTrue(result.isPresent());
+		assertEquals(expected, result.get());
 		Files.delete(targetPath);
 	}
 

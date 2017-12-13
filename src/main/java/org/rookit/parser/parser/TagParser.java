@@ -27,6 +27,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.text.WordUtils;
@@ -59,7 +60,7 @@ class TagParser extends AbstractParser<TrackPath, SingleTrackAlbumBuilder> {
 	}
 
 	@Override
-	protected SingleTrackAlbumBuilder parseFromBaseResult(TrackPath path, SingleTrackAlbumBuilder track) {
+	protected Optional<SingleTrackAlbumBuilder> parseFromBaseResult(TrackPath path, SingleTrackAlbumBuilder track) {
 		final Mp3File mp3;
 		final SingleTrackAlbumBuilder result = SingleTrackAlbumBuilder.create(track);
 		try {
@@ -75,10 +76,10 @@ class TagParser extends AbstractParser<TrackPath, SingleTrackAlbumBuilder> {
 				setV2Tags(result, mp3.getId3v2Tag());
 			}
 
-			return result;
+			return Optional.ofNullable(result);
 		} catch (UnsupportedTagException e) {
 			// returns the original unaltered result
-			return track;
+			return Optional.ofNullable(track);
 		} catch (SuspiciousCharSeqException | SuspiciousDuplicateException  e) {
 			VALIDATOR.handleParseException(e);
 			return null;

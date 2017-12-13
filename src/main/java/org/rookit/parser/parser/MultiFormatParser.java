@@ -75,9 +75,9 @@ class MultiFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder> 
 	}
 
 	@Override
-	protected SingleTrackAlbumBuilder parseFromBaseResult(String token, SingleTrackAlbumBuilder baseResult) {
+	protected Optional<SingleTrackAlbumBuilder> parseFromBaseResult(String token, SingleTrackAlbumBuilder baseResult) {
 		final Iterable<SingleTrackAlbumBuilder> results = parseAllLocal(token, baseResult);
-		return Iterables.getFirst(results, null);
+		return Optional.ofNullable(Iterables.getFirst(results, null));
 	}
 
 	@Override

@@ -21,10 +21,12 @@
  ******************************************************************************/
 package org.rookit.parser.parser;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
+
 import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.result.Result;
-
-import com.google.common.collect.Lists;
 
 class BottomParserPipeline<I, O extends Result<?>> extends AbstractParserPipeline<I, I, O> {
 	
@@ -38,25 +40,33 @@ class BottomParserPipeline<I, O extends Result<?>> extends AbstractParserPipelin
 	}
 
 	@Override
-	public O parse(I token) {
-		return baseResult;
+	public Optional<O> parse(I token) {
+		return Optional.of(baseResult);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <R extends Result<?>> O parse(I token, R baseResult) {
+	public <R extends Result<?>> Optional<O> parse(I token, R baseResult) {
 		VALIDATOR.checkArgumentClass(this.baseResult.getClass(), baseResult.getClass(), "The base result class is not valid.");
-		return (O) baseResult;
+		return Optional.of((O) baseResult);
 	}
 
 	@Override
 	public Iterable<O> parseAll(I token) {
-		return Lists.newArrayList(parse(token));
+		final Optional<O> result = parse(token);
+		if(result.isPresent()) {
+			return Arrays.asList(result.get());
+		}
+		return Collections.emptyList();
 	}
 
 	@Override
 	public <R extends Result<?>> Iterable<O> parseAll(I token, R baseResult) {
-		return Lists.newArrayList(parse(token, baseResult));
+		final Optional<O> result = parse(token, baseResult);
+		if(result.isPresent()) {
+			return Arrays.asList(result.get());
+		}
+		return Collections.emptyList();
 	}
 
 	@Override

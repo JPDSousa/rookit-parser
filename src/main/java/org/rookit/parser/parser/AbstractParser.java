@@ -21,11 +21,13 @@
  ******************************************************************************/
 package org.rookit.parser.parser;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
+
 import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.result.Result;
 import org.rookit.parser.utils.ParserValidator;
-
-import com.google.common.collect.Lists;
 
 abstract class AbstractParser<T, R extends Result<?>> implements Parser<T, R> {
 
@@ -45,30 +47,38 @@ abstract class AbstractParser<T, R extends Result<?>> implements Parser<T, R> {
 	}
 	
 	@Override
-	public R parse(T token) {
+	public Optional<R> parse(T token) {
 		return parseFromBaseResult(token, getDefaultBaseResult());
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <R1 extends Result<?>> R parse(T token, R1 baseResult) {
+	public <R1 extends Result<?>> Optional<R> parse(T token, R1 baseResult) {
 		VALIDATOR.checkArgumentClass(config.getResultClass(), baseResult.getClass(), "Invalid base result class");
 		return parseFromBaseResult(token, (R) baseResult);
 	}
 	
 	@Override
 	public Iterable<R> parseAll(T token) {
-		return Lists.newArrayList(parse(token));
+		final Optional<R> result = parse(token);
+		if(result.isPresent()) {
+			return Arrays.asList(result.get());
+		}
+		return Collections.emptyList();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <O extends Result<?>> Iterable<R> parseAll(T token, O baseResult) {
 		VALIDATOR.checkArgumentClass(getConfig().getResultClass(), baseResult.getClass(), "The base result class is not valid.");
-		return Lists.newArrayList(parse(token, (R) baseResult));
+		final Optional<R> result = parse(token, (R) baseResult);
+		if(result.isPresent()) {
+			return Arrays.asList(result.get());
+		}
+		return Collections.emptyList();
 	}
 
-	protected abstract R parseFromBaseResult(T token, R baseResult);
+	protected abstract Optional<R> parseFromBaseResult(T token, R baseResult);
 	
 	@Override
 	public int hashCode() {

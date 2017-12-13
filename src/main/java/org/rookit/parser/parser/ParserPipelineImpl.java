@@ -21,6 +21,9 @@
  ******************************************************************************/
 package org.rookit.parser.parser;
 
+import java.util.Collections;
+import java.util.Optional;
+
 import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.result.Result;
 
@@ -34,26 +37,29 @@ class ParserPipelineImpl<I, CI, O extends Result<?>> extends AbstractParserPipel
 		this.topParser = topParser;
 	}
 	
-	private O getBaseResult(I token) {
+	private Optional<O> getBaseResult(I token) {
 		return topParser.parse(token);
 	}
 	
-	private <R extends Result<?>> O getBaseResult(I token, R baseResult) {
+	private <R extends Result<?>> Optional<O> getBaseResult(I token, R baseResult) {
 		return topParser.parse(token, baseResult);
 	}
 	
 	@Override
-	public O parse(I token) {
+	public Optional<O> parse(I token) {
 		return parseLocal(token, getBaseResult(token));
 	}
 
 	@Override
-	public <R extends Result<?>> O parse(I token, R baseResult) {
+	public <R extends Result<?>> Optional<O> parse(I token, R baseResult) {
 		return parseLocal(token, getBaseResult(token, baseResult));
 	}
 	
-	private O parseLocal(I token, O baseResult) {
-		return parser.parse(input2CurrentInput(token), baseResult);
+	private Optional<O> parseLocal(I token, Optional<O> baseResult) {
+		if(baseResult.isPresent()) {
+			return parser.parse(input2CurrentInput(token), baseResult.get());
+		}
+		return baseResult;
 	}
 
 	@Override
@@ -66,8 +72,11 @@ class ParserPipelineImpl<I, CI, O extends Result<?>> extends AbstractParserPipel
 		return parseAllLocal(token, getBaseResult(token, baseResult));
 	}
 	
-	private Iterable<O> parseAllLocal(I token, O baseResult) {
-		return parser.parseAll(input2CurrentInput(token), baseResult);
+	private Iterable<O> parseAllLocal(I token, Optional<O> baseResult) {
+		if(baseResult.isPresent()) {
+			return parser.parseAll(input2CurrentInput(token), baseResult.get());
+		}
+		return Collections.emptyList();
 	}
 
 	@Override

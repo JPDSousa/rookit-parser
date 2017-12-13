@@ -55,7 +55,7 @@ public class ParserPipelineTest {
 		final String testStr = "someRandomString";
 		assertNotNull(pipeline);
 		assertEquals(testStr, pipeline.input2CurrentInput(testStr));
-		assertEquals(baseResult, pipeline.parse(testStr));
+		assertEquals(baseResult, pipeline.parse(testStr).get());
 	}
 	
 	
