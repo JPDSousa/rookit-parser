@@ -121,7 +121,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	private long skipped;
 	private LocalDate lastPlayed;
 	private LocalDate lastSkipped;
-	private boolean explicit;
+	private Boolean explicit;
 	private final Map<String, Document> externalMeta;
 	
 	private final TrackFactory trackFactory;
@@ -411,7 +411,9 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	private void fill(Track track) {
 		fill(mainArtists, a -> track.addMainArtist(a));
 		fill(features, a -> track.addFeature(a));
-		track.setExplicit(explicit);
+		if(explicit != null) {
+			track.setExplicit(explicit);
+		}
 		fill(producers, a -> track.addProducer(a));
 		fillPaths(track);
 		fillPlayable(track);
