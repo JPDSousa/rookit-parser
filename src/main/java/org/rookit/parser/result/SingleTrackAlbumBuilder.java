@@ -475,7 +475,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		result = prime * result + ((date == null) ? 0 : date.hashCode());
 		result = prime * result + ((disc == null) ? 0 : disc.hashCode());
 		result = prime * result + ((duration == null) ? 0 : duration.hashCode());
-		result = prime * result + (explicit ? 1231 : 1237);
+		result = prime * result + ((explicit == null) ? 0 : explicit.hashCode());
 		result = prime * result + ((externalMeta == null) ? 0 : externalMeta.hashCode());
 		result = prime * result + ((extraArtists == null) ? 0 : extraArtists.hashCode());
 		result = prime * result + ((features == null) ? 0 : features.hashCode());
@@ -549,7 +549,11 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		} else if (!duration.equals(other.duration)) {
 			return false;
 		}
-		if (explicit != other.explicit) {
+		if (explicit == null) {
+			if (other.explicit != null) {
+				return false;
+			}
+		} else if (!explicit.equals(other.explicit)) {
 			return false;
 		}
 		if (externalMeta == null) {
