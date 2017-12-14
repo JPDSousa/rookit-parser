@@ -142,7 +142,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		return this;
 	}
 	
-	public SingleTrackAlbumBuilder withExplicit(boolean isExplicit) {
+	public SingleTrackAlbumBuilder withExplicit(Boolean isExplicit) {
 		this.explicit = isExplicit;
 		return this;
 	}
