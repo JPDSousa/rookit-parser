@@ -24,8 +24,6 @@ package org.rookit.parser.parser;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.exceptions.InvalidSongFormatException;
@@ -44,7 +42,7 @@ import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 
 class MultiFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder> {
-	
+
 	private static final String[][] ENHANCEMENTS = {/*{"_", " "},*/
 			{"  ", " "},
 			{"�", "-"}};
@@ -100,22 +98,15 @@ class MultiFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder> 
 		final String enhancedInput = enhanceInput(input);
 		final List<TrackFormat> formats = getConfig().getFormats();
 		formats.forEach(f -> validateRequiredFields(f));
-		final int nThreads = formats.size()/2;
-		final ExecutorService executor;
-		if (nThreads > 1) {
-			executor = Executors.newFixedThreadPool(nThreads);
-		}
-		else {
-			executor = Executors.newSingleThreadExecutor();
-		}
-		final Scheduler scheduler = Schedulers.from(executor);
+		final Scheduler scheduler = Schedulers.computation();
 
 		return Observable.fromIterable(formats)
-		.flatMapSingle(format -> Single.fromCallable(new SingleFormatParser(format, enhancedInput, baseResult, this))
-				.observeOn(scheduler))
-		.filter(Optional::isPresent)
-		.map(Optional::get)
-		.blockingIterable();
+				.flatMapSingle(format -> Single.fromCallable(new SingleFormatParser(format, enhancedInput, baseResult, this))
+						.observeOn(scheduler))
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.sorted()
+				.blockingIterable();
 	}
 
 	public boolean checkSong(Path f) throws InvalidSongFormatException {
