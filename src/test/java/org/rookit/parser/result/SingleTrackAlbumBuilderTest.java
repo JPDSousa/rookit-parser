@@ -70,6 +70,12 @@ public class SingleTrackAlbumBuilderTest {
 				.withHiddenTrack(FACTORY.randomString());
 		
 	}
+	
+	@Test
+	public final void testHashCode() {
+		guineaPig.hashCode();
+		// TODO test with all variants (check code)
+	}
 
 	@Test
 	public final void testCreate() {
