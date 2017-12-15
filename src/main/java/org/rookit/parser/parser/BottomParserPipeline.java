@@ -41,6 +41,7 @@ class BottomParserPipeline<I, O extends Result<?>> extends AbstractParserPipelin
 
 	@Override
 	public Optional<O> parse(I token) {
+		VALIDATOR.checkArgumentNotNull(token, "Cannot parse null");
 		return Optional.of(baseResult);
 	}
 
@@ -53,6 +54,7 @@ class BottomParserPipeline<I, O extends Result<?>> extends AbstractParserPipelin
 
 	@Override
 	public Iterable<O> parseAll(I token) {
+		VALIDATOR.checkArgumentNotNull(token, "Cannot parse null");
 		final Optional<O> result = parse(token);
 		if(result.isPresent()) {
 			return Arrays.asList(result.get());
@@ -71,6 +73,7 @@ class BottomParserPipeline<I, O extends Result<?>> extends AbstractParserPipelin
 
 	@Override
 	public I input2CurrentInput(I input) {
+		VALIDATOR.checkArgumentNotNull(input, "Cannot parse null");
 		return input;
 	}
 
