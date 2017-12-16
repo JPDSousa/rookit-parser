@@ -36,7 +36,7 @@ import org.rookit.dm.genre.Genre;
 import org.rookit.dm.track.Track;
 import org.rookit.dm.track.TypeTrack;
 import org.rookit.dm.track.TypeVersion;
-import org.rookit.dm.utils.DMTestFactory;
+import org.rookit.dm.test.DMTestFactory;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
 import org.rookit.parser.utils.TestUtils;
 import org.rookit.parser.utils.TrackPath;
@@ -117,7 +117,7 @@ public class SingleTrackAlbumBuilderTest {
 	@Test
 	public final void testEmptyBuilderValidDisc() {
 		final Album album = FACTORY.getRandomAlbum();
-		final Track track = FACTORY.getRandomTrack();
+		final Track track = FACTORY.getRandomOriginalTrack();
 		final String disc = guineaPig.getDisc();
 		assertNotNull(guineaPig.getDisc());
 		album.addTrack(track, 1, disc);

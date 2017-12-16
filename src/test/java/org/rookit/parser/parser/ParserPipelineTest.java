@@ -30,7 +30,7 @@ import java.util.Optional;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.rookit.dm.album.Album;
-import org.rookit.dm.utils.DMTestFactory;
+import org.rookit.dm.test.DMTestFactory;
 import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.parser.ParserFactory;
 import org.rookit.parser.parser.ParserPipeline;

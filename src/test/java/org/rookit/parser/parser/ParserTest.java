@@ -24,7 +24,7 @@ package org.rookit.parser.parser;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.rookit.dm.utils.DMTestFactory;
+import org.rookit.dm.test.DMTestFactory;
 import org.rookit.parser.parser.Parser;
 import org.rookit.parser.result.Result;
 
