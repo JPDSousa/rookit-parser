@@ -80,7 +80,7 @@ public class MultiFormatParserTest {
 		for(SingleTrackAlbumBuilder result : results) {
 			System.out.println(result.getFormat());
 			System.out.println("Score: " + result.getScore());
-			System.out.println(PrintUtils.track(result.getTrack()));
+			System.out.println(PrintUtils.track(result.buildTrack()));
 		} 
 	}
 
@@ -104,7 +104,7 @@ public class MultiFormatParserTest {
 		parser = parserFactory.newFormatParserWithTrackFormats(Arrays.asList(format));
 		final Optional<SingleTrackAlbumBuilder> result = parser.parse(str, SingleTrackAlbumBuilder.create());
 		assertTrue(result.isPresent());
-		final Track track = result.get().getTrack();
+		final Track track = result.get().buildTrack();
 		assertEquals(artist, Iterables.get(track.getMainArtists(), 0).getName());
 		assertEquals(title, track.getTitle().getTitle());
 		assertEquals(ignore, result.get().getIgnored().get(0));
@@ -129,7 +129,7 @@ public class MultiFormatParserTest {
 		final String ex = "[Progressive] -  Ale Q & Avedon Ft. Jonathan Mendelsohn -  Open My Eyes (Tom Swoon Edit)";
 		parser = parserFactory.newFormatParserWithTrackFormats(Arrays.asList(format));
 		final Optional<SingleTrackAlbumBuilder> result = parser.parse(ex, SingleTrackAlbumBuilder.create());
-		System.out.println(PrintUtils.track(result.get().getTrack()));
+		System.out.println(PrintUtils.track(result.get().buildTrack()));
 	}
 	
 }

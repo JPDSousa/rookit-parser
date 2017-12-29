@@ -21,6 +21,9 @@
  ******************************************************************************/
 package org.rookit.parser.result;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,7 +36,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.rookit.dm.album.Album;
 import org.rookit.dm.album.AlbumFactory;
@@ -41,7 +43,7 @@ import org.rookit.dm.album.TypeRelease;
 import org.rookit.dm.artist.Artist;
 import org.rookit.dm.genre.Genre;
 import org.rookit.dm.genre.Genreable;
-import org.rookit.dm.play.Playable;
+import org.rookit.dm.play.able.Playable;
 import org.rookit.dm.track.Track;
 import org.rookit.dm.track.TrackFactory;
 import org.rookit.dm.track.TypeTrack;
@@ -122,7 +124,10 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	private LocalDate lastPlayed;
 	private LocalDate lastSkipped;
 	private Boolean explicit;
-	private final Map<String, Document> externalMeta;
+	private final Map<String, Map<String, Object>> externalMeta;
+	
+	private Album builtAlbum;
+	private Track builtTrack;
 	
 	private final TrackFactory trackFactory;
 	private final AlbumFactory albumFactory;
@@ -137,7 +142,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		this.disc = Album.DEFAULT_DISC;
 	}
 	
-	public SingleTrackAlbumBuilder withExternalMetadata(String key, Document value) {
+	public SingleTrackAlbumBuilder withExternalMetadata(String key, Map<String, Object> value) {
 		externalMeta.put(key, value);
 		return this;
 	}
@@ -326,25 +331,24 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	}
 
 	@Override
-	public Album build() {
-		final Track track = buildTrack();
-		final TypeRelease release = fromTrack(track);
-		final Album album = getAlbum(release);
-		if(number <= 0) {
-			album.addTrackLast(track, disc);
+	public synchronized Album build() {
+		if(builtAlbum == null) {
+			final Track track = buildTrack();
+			final TypeRelease release = fromTrack(track);
+			final Album album = getAlbum(release);
+			if(number <= 0) {
+				album.addTrackLast(track, disc);
+			}
+			else {
+				album.addTrack(track, number, disc);
+			}
+			if(cover != null) {
+				album.setCover(cover);	
+			}
+			album.setReleaseDate(date);
+			builtAlbum = album;
 		}
-		else {
-			album.addTrack(track, number, disc);
-		}
-		if(cover != null) {
-			album.setCover(cover);	
-		}
-		album.setReleaseDate(date);
-		return album;
-	}
-
-	public Track getTrack() {
-		return buildTrack();
+		return builtAlbum;
 	}
 
 	private Album getAlbum(final TypeRelease release) {
@@ -391,13 +395,18 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		return TypeRelease.SINGLE;
 	}
 
-	private Track buildTrack() {
-		final Track original = trackFactory.createOriginalTrack(title);
-		if(isVersion()) {
-			return createVersionOf(original);
+	public synchronized Track buildTrack() {
+		if(builtTrack == null) {
+			final Track original = trackFactory.createOriginalTrack(title);
+			if(isVersion()) {
+				builtTrack = createVersionOf(original);
+			}
+			else {
+				fill(original);
+				builtTrack = original;
+			}
 		}
-		fill(original);
-		return original;
+		return builtTrack;
 	}
 
 	private VersionTrack createVersionOf(Track original) {
@@ -441,7 +450,13 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 
 	private void fillPaths(Track track) {
 		if(path != null) {
-			track.getPath().attachFile(path.getPath());
+			try {
+				final OutputStream output = track.getPath().toOutput();
+				output.write(Files.readAllBytes(path.getPath()));
+				output.close();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 
@@ -786,17 +801,17 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	}
 
 	@Override
-	public Map<String, Document> getExternalMetadata() {
+	public Map<String, Map<String, Object>> getExternalMetadata() {
 		return externalMeta;
 	}
 
 	@Override
-	public Document getExternalMetadata(String arg0) {
+	public Map<String, Object> getExternalMetadata(String arg0) {
 		return externalMeta.get(arg0);
 	}
 
 	@Override
-	public void putExternalMetadata(String arg0, Document arg1) {
+	public void putExternalMetadata(String arg0, Map<String, Object> arg1) {
 		withExternalMetadata(arg0, arg1);
 	}
 	

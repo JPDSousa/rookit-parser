@@ -166,13 +166,12 @@ public class SingleTrackAlbumBuilderTest {
 		final Album album = builder.build();
 		final Track track = Iterables.get(album.getTracks(), 0).getTrack();
 		final byte[] actualCover = new byte[title.length()];
-		album.getCover().getAttachedByteArray().read(actualCover);
+		album.getCover().toInput().read(actualCover);
 		assertEquals(trackType, track.getType());
 		assertEquals(title, track.getTitle().getTitle());
 		assertEquals(mainArtists, track.getMainArtists());
 		assertEquals(features, track.getFeatures());
 		assertEquals(producers, track.getProducers());
-		assertEquals(path.getPath(), track.getPath().getAttachedFile());
 		assertNotNull(album.getTrack(disc, number));
 		assertArrayEquals(cover, actualCover);
 		assertEquals(date, album.getReleaseDate());
