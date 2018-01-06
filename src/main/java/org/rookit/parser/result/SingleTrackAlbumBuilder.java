@@ -73,7 +73,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 				.withType(builder.type)
 				.withTitle(builder.title)
 				.withTypeVersion(builder.versionType)
-				.withExtraArtists(builder.extraArtists)
+				.withVersionArtists(builder.versionArtists)
 				.withMainArtists(builder.mainArtists)
 				.withFeatures(builder.features)
 				.withProducers(builder.producers)
@@ -103,7 +103,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	private TypeTrack type;
 	private String title;
 	private TypeVersion versionType;
-	private Set<Artist> extraArtists;
+	private Set<Artist> versionArtists;
 	private Set<Artist> mainArtists;
 	private Set<Artist> features;
 	private Set<Artist> producers;
@@ -180,6 +180,18 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		return this;
 	}
 	
+	public Set<Artist> getMainArtists() {
+		return mainArtists;
+	}
+
+	public Set<Artist> getFeatures() {
+		return features;
+	}
+
+	public Set<Artist> getProducers() {
+		return producers;
+	}
+
 	public SingleTrackAlbumBuilder withFeatures(Set<Artist> artists) {
 		this.features = artists;
 		return this;
@@ -190,6 +202,14 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		return this;
 	}
 	
+	public Set<Artist> getVersionArtists() {
+		return versionArtists;
+	}
+
+	public String getVersionToken() {
+		return versionToken;
+	}
+
 	public SingleTrackAlbumBuilder withTitle(String title) {
 		this.title = title;
 		return this;
@@ -219,8 +239,8 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		return title;
 	}
 
-	public SingleTrackAlbumBuilder withExtraArtists(Set<Artist> extraArtists) {
-		this.extraArtists = extraArtists;
+	public SingleTrackAlbumBuilder withVersionArtists(Set<Artist> extraArtists) {
+		this.versionArtists = extraArtists;
 		return this;
 	}
 	
@@ -411,7 +431,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 
 	private VersionTrack createVersionOf(Track original) {
 		final VersionTrack version = trackFactory.createVersionTrack(versionType, original);
-		fill(extraArtists, a -> version.addVersionArtist(a));
+		fill(versionArtists, a -> version.addVersionArtist(a));
 		fill(producers, a -> version.addProducer(a));
 		fill(version);
 		return version;
@@ -431,7 +451,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		setHiddenTrack(track);
 	}
 
-	private boolean isVersion() {
+	public boolean isVersion() {
 		return type == TypeTrack.VERSION 
 				|| (type == null && versionType != null);
 	}
@@ -492,7 +512,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		result = prime * result + ((duration == null) ? 0 : duration.hashCode());
 		result = prime * result + ((explicit == null) ? 0 : explicit.hashCode());
 		result = prime * result + ((externalMeta == null) ? 0 : externalMeta.hashCode());
-		result = prime * result + ((extraArtists == null) ? 0 : extraArtists.hashCode());
+		result = prime * result + ((versionArtists == null) ? 0 : versionArtists.hashCode());
 		result = prime * result + ((features == null) ? 0 : features.hashCode());
 		result = prime * result + ((format == null) ? 0 : format.hashCode());
 		result = prime * result + ((genres == null) ? 0 : genres.hashCode());
@@ -578,11 +598,11 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 		} else if (!externalMeta.equals(other.externalMeta)) {
 			return false;
 		}
-		if (extraArtists == null) {
-			if (other.extraArtists != null) {
+		if (versionArtists == null) {
+			if (other.versionArtists != null) {
 				return false;
 			}
-		} else if (!extraArtists.equals(other.extraArtists)) {
+		} else if (!versionArtists.equals(other.versionArtists)) {
 			return false;
 		}
 		if (features == null) {
@@ -705,7 +725,7 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	@Override
 	public String toString() {
 		return "SingleTrackAlbumBuilder [id=" + id + ", type=" + type + ", title=" + title + ", versionType="
-				+ versionType + ", extraArtists=" + extraArtists + ", mainArtists=" + mainArtists + ", features="
+				+ versionType + ", extraArtists=" + versionArtists + ", mainArtists=" + mainArtists + ", features="
 				+ features + ", producers=" + producers + ", path=" + path + ", disc=" + disc + ", number=" + number
 				+ ", cover=" + Arrays.toString(cover) + ", album=" + album + ", date=" + date + ", albumTitle="
 				+ albumTitle + ", genres=" + genres + ", hiddenTrack=" + hiddenTrack + ", ignored=" + ignored

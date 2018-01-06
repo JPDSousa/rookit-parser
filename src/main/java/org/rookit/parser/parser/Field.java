@@ -283,7 +283,7 @@ public enum Field {
 	EXTRA(InitialScores.L2_VALUE) {
 		@Override
 		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context) {
-			track.withExtraArtists(values.stream()
+			track.withVersionArtists(values.stream()
 					.flatMap(v -> ArtistFactory.getDefault().getArtistsFromFormat(v).stream())
 					.collect(Collectors.toSet()));
 		}
