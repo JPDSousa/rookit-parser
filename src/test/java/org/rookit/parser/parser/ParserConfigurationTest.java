@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.rookit.parser.parser;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.rookit.mongodb.DBManager;
+import org.rookit.api.storage.DBManager;
 import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.parser.Parser;
 import org.rookit.parser.parser.TrackFormat;
@@ -49,7 +49,7 @@ public class ParserConfigurationTest {
 	public final void testDBConnection() {
 		final DBManager db = mock(DBManager.class);
 		config.withDBConnection(db);
-		assertEquals(db, config.getDBConnection());
+		assertThat(config.getDBConnection()).isEqualTo(db);
 		//test null db (allowed)
 		config.withDBConnection(null);
 	}
@@ -58,14 +58,14 @@ public class ParserConfigurationTest {
 	public final void testSetDate() {
 		final boolean date = true;
 		config.withSetDate(date);
-		assertEquals(date, config.isSetDate());
+		assertThat(config.isSetDate()).isEqualTo(date);
 	}
 	
 	@Test
 	public final void testRequiredFields() {
 		final Field[] fields = Field.getRequiredFields();
 		config.withRequiredFields(fields);
-		assertArrayEquals(fields, config.getRequiredFields());
+		assertThat(config.getRequiredFields()).isEqualTo(fields);
 		//test null fields (allowed)
 		config.withRequiredFields(null);
 	}
@@ -75,14 +75,14 @@ public class ParserConfigurationTest {
 		final boolean store = true;
 		config.withDbStorage(store)
 		.withDBConnection(mock(DBManager.class));
-		assertEquals(store, config.isStoreDB());
+		assertThat(config.isStoreDB()).isEqualTo(store);
 	}
 	
 	@Test
 	public final void testTrackFormats() {
 		final List<TrackFormat> formats = new ArrayList<>();
 		config.withTrackFormats(formats);
-		assertEquals(formats, config.getFormats());
+		assertThat(config.getFormats()).isEqualTo(formats);
 		//test null formats (allowed)
 		config.withTrackFormats(null);
 	}

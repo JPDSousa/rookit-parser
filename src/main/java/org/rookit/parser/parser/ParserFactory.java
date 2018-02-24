@@ -23,7 +23,7 @@ package org.rookit.parser.parser;
 
 import java.util.List;
 
-import org.rookit.mongodb.DBManager;
+import org.rookit.api.storage.DBManager;
 import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.result.Result;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
@@ -79,11 +79,11 @@ public class ParserFactory {
 		return newFormatParser(getDefaultStringConfig().withDBConnection(connection));
 	}
 	
-	public Parser<String, SingleTrackAlbumBuilder> newFormatParserWithTrackFormats(List<TrackFormat> formats) {
+	public Parser<String, SingleTrackAlbumBuilder> newFormatParserWithTrackFormats(final List<TrackFormat> formats) {
 		return newFormatParser(getDefaultStringConfig().withTrackFormats(formats));
 	}
 	
-	public Parser<TrackPath, SingleTrackAlbumBuilder> newFileStructureParser(ParserConfiguration config) {
+	public Parser<TrackPath, SingleTrackAlbumBuilder> newFileStructureParser(final ParserConfiguration config) {
 		return FileStructureParser.create(config);
 	}
 	

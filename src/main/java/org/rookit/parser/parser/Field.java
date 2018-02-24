@@ -22,6 +22,7 @@
 package org.rookit.parser.parser;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,12 +30,10 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.text.WordUtils;
-import org.rookit.mongodb.DBManager;
-import org.rookit.dm.artist.ArtistFactory;
-import org.rookit.dm.genre.GenreFactory;
-import org.rookit.dm.track.Track;
-import org.rookit.dm.track.TrackFactory;
-import org.rookit.dm.track.TypeVersion;
+import org.rookit.api.dm.artist.factory.ArtistFactory;
+import org.rookit.api.dm.genre.factory.GenreFactory;
+import org.rookit.api.dm.track.TypeVersion;
+import org.rookit.api.storage.DBManager;
 import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
 
@@ -100,7 +99,8 @@ public enum Field {
 	 */
 	TITLE(InitialScores.L2_VALUE) {
 		@Override
-		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context) {
+		public void setField(final SingleTrackAlbumBuilder track, final List<String> values, 
+				final ParserConfiguration context) {
 			track.withTitle(WordUtils.capitalizeFully(values.get(0)));
 		}
 
@@ -121,9 +121,14 @@ public enum Field {
 	 */
 	ARTIST(InitialScores.L2_VALUE) {
 		@Override
-		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context) {			
+		public void setField(final SingleTrackAlbumBuilder track, final List<String> values, 
+				final ParserConfiguration context) {
+			final ArtistFactory artistFactory = context.getDBConnection()
+					.getFactories()
+					.getArtistFactory();
 			track.withMainArtists(values.stream()
-					.flatMap(v -> ArtistFactory.getDefault().getArtistsFromFormat(v).stream())
+					.map(artistFactory::getArtistsFromFormat)
+					.flatMap(Collection::stream)
 					.collect(Collectors.toSet()));
 		}
 
@@ -150,9 +155,14 @@ public enum Field {
 	 */
 	FEAT(InitialScores.L2_VALUE) {
 		@Override
-		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context) {
+		public void setField(final SingleTrackAlbumBuilder track, final List<String> values, 
+				final ParserConfiguration context) {
+			final ArtistFactory artistFactory = context.getDBConnection()
+					.getFactories()
+					.getArtistFactory();
 			track.withFeatures(values.stream()
-					.flatMap(v -> ArtistFactory.getDefault().getArtistsFromFormat(v).stream())
+					.map(artistFactory::getArtistsFromFormat)
+					.flatMap(Collection::stream)
 					.collect(Collectors.toSet()));
 		}
 
@@ -174,9 +184,14 @@ public enum Field {
 		}
 
 		@Override
-		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context) {
+		public void setField(final SingleTrackAlbumBuilder track, final List<String> values, 
+				final ParserConfiguration context) {
+			final ArtistFactory artistFactory = context.getDBConnection()
+					.getFactories()
+					.getArtistFactory();
 			track.withProducers(values.stream()
-					.flatMap(v -> ArtistFactory.getDefault().getArtistsFromFormat(v).stream())
+					.map(artistFactory::getArtistsFromFormat)
+					.flatMap(Collection::stream)
 					.collect(Collectors.toSet()));
 		}
 
@@ -219,9 +234,13 @@ public enum Field {
 	 */
 	GENRE(InitialScores.L1_VALUE) {
 		@Override
-		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context) {
+		public void setField(final SingleTrackAlbumBuilder track, final List<String> values, 
+				final ParserConfiguration context) {
+			final GenreFactory genreFactory = context.getDBConnection()
+					.getFactories()
+					.getGenreFactory();
 			track.withGenres(values.stream()
-					.map(v -> GenreFactory.getDefault().createGenre(v))
+					.map(genreFactory::createGenre)
 					.collect(Collectors.toSet()));
 		}
 
@@ -282,9 +301,14 @@ public enum Field {
 	 */
 	EXTRA(InitialScores.L2_VALUE) {
 		@Override
-		public void setField(SingleTrackAlbumBuilder track, List<String> values, ParserConfiguration context) {
+		public void setField(final SingleTrackAlbumBuilder track, final List<String> values, 
+				final ParserConfiguration context) {
+			final ArtistFactory artistFactory = context.getDBConnection()
+					.getFactories()
+					.getArtistFactory();
 			track.withVersionArtists(values.stream()
-					.flatMap(v -> ArtistFactory.getDefault().getArtistsFromFormat(v).stream())
+					.map(artistFactory::getArtistsFromFormat)
+					.flatMap(Collection::stream)
 					.collect(Collectors.toSet()));
 		}
 

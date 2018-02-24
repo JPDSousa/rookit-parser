@@ -23,10 +23,11 @@ package org.rookit.parser.parser;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Optional;
 
 import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.result.Result;
+
+import com.google.common.base.Optional;
 
 class BottomParserPipeline<I, O extends Result<?>> extends AbstractParserPipeline<I, I, O> {
 	

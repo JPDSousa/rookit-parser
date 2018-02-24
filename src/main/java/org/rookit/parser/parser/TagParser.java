@@ -21,26 +21,26 @@
  ******************************************************************************/
 package org.rookit.parser.parser;
 
-
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Optional;
 import java.util.Set;
 
-import org.apache.commons.lang3.text.WordUtils;
-import org.rookit.dm.album.Album;
-import org.rookit.dm.album.AlbumFactory;
-import org.rookit.dm.artist.Artist;
-import org.rookit.dm.artist.ArtistFactory;
+import org.apache.commons.text.WordUtils;
+import org.rookit.api.dm.album.Album;
+import org.rookit.api.dm.album.AlbumFactory;
+import org.rookit.api.dm.artist.Artist;
+import org.rookit.api.dm.artist.factory.ArtistFactory;
+import org.rookit.api.dm.factory.RookitFactories;
 import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.exceptions.SuspiciousCharSeqException;
 import org.rookit.parser.exceptions.SuspiciousDuplicateException;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
 import org.rookit.parser.utils.TrackPath;
 
+import com.google.common.base.Optional;
 import com.mpatric.mp3agic.ID3v1;
 import com.mpatric.mp3agic.ID3v2;
 import com.mpatric.mp3agic.Mp3File;
@@ -54,7 +54,7 @@ class TagParser extends AbstractParser<TrackPath, SingleTrackAlbumBuilder> {
 	static TagParser create(ParserConfiguration config) {
 		return new TagParser(config);
 	}
-
+	
 	private TagParser(ParserConfiguration config){
 		super(config);
 	}
@@ -76,10 +76,10 @@ class TagParser extends AbstractParser<TrackPath, SingleTrackAlbumBuilder> {
 				setV2Tags(result, mp3.getId3v2Tag());
 			}
 
-			return Optional.ofNullable(result);
+			return Optional.fromNullable(result);
 		} catch (UnsupportedTagException e) {
 			// returns the original unaltered result
-			return Optional.ofNullable(track);
+			return Optional.fromNullable(track);
 		} catch (SuspiciousCharSeqException | SuspiciousDuplicateException  e) {
 			VALIDATOR.handleParseException(e);
 			return null;
@@ -121,22 +121,31 @@ class TagParser extends AbstractParser<TrackPath, SingleTrackAlbumBuilder> {
 	}
 
 	private Set<Artist> getFeatures(final String albumArtists, final String artists) {
+		final ArtistFactory artistFactory = getConfig().getDBConnection()
+				.getFactories()
+				.getArtistFactory();
 		if(artists != null && albumArtists != null){
-			return ArtistFactory.getDefault().createFeatArtists(artists, albumArtists);
+			return artistFactory.createFeatArtists(artists, albumArtists);
 		}
 		return null;
 	}
 
 	private Set<Artist> getMainArtists(String albumArtists) {
+		final ArtistFactory artistFactory = getConfig().getDBConnection()
+				.getFactories()
+				.getArtistFactory();
 		if(albumArtists != null){
-			return ArtistFactory.getDefault().getArtistsFromTag(albumArtists);
+			return artistFactory.getArtistsFromTag(albumArtists);
 		}
 		return null;
 	}
 
 	private Album getAlbum(String album, String albumArtists) {
+		final AlbumFactory albumFactory = getConfig().getDBConnection()
+				.getFactories()
+				.getAlbumFactory();
 		if(album != null && albumArtists != null && album.length() > 0){
-			return AlbumFactory.getDefault().createSingleArtistAlbum(album, albumArtists);
+			return albumFactory.createSingleArtistAlbum(album, albumArtists);
 		}
 		return null;
 	}
@@ -196,6 +205,9 @@ class TagParser extends AbstractParser<TrackPath, SingleTrackAlbumBuilder> {
 
 	@Override
 	protected SingleTrackAlbumBuilder getDefaultBaseResult() {
-		return SingleTrackAlbumBuilder.create();
+		final RookitFactories factories = getConfig().getDBConnection().getFactories();
+		return SingleTrackAlbumBuilder.create(
+				factories.getAlbumFactory(), 
+				factories.getTrackFactory());
 	}
 }

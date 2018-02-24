@@ -21,18 +21,21 @@
  ******************************************************************************/
 package org.rookit.parser.parser;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.rookit.dm.track.Track;
-import org.rookit.dm.utils.PrintUtils;
+import org.rookit.api.dm.factory.RookitFactories;
+import org.rookit.api.dm.track.Track;
+import org.rookit.api.storage.DBManager;
+import org.rookit.dm.inject.DMFactoriesModule;
+import org.rookit.dm.utils.DMPrintUtils;
+import org.rookit.mongodb.inject.morphia.MorphiaModule;
 import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.exceptions.InvalidSongFormatException;
 import org.rookit.parser.parser.Field;
@@ -43,44 +46,55 @@ import org.rookit.parser.parser.TrackFormat;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
 import org.rookit.parser.utils.TestUtils;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 @SuppressWarnings("javadoc")
 public class MultiFormatParserTest {
 
+	private static DBManager database;
+	private static RookitFactories factories;
 	private static ParserFactory parserFactory;
-	private static Parser<String, SingleTrackAlbumBuilder> parser;
-	
+
+	private Parser<String, SingleTrackAlbumBuilder> parser;
+	private ParserConfiguration config;
+
 	@BeforeClass
 	public static void setUp() {
+		final Injector injector = Guice.createInjector(new DMFactoriesModule(), 
+				new MorphiaModule());
+		factories = injector.getInstance(RookitFactories.class);
 		parserFactory = ParserFactory.create();
+		database = injector.getInstance(DBManager.class);
 	}
-	
+
 	@Before
 	public void before() throws IOException {
-		final ParserConfiguration config = Parser.createConfiguration(SingleTrackAlbumBuilder.class);
-		config.withDbStorage(false)
-		.withRequiredFields(Field.getRequiredFields())
-		.withSetDate(true)
-		.withTrackFormats(TestUtils.getTestFormats());
+		config = Parser.createConfiguration(SingleTrackAlbumBuilder.class).withDbStorage(true)
+				.withDBConnection(database)
+				.withRequiredFields(Field.getRequiredFields())
+				.withSetDate(true)
+				.withTrackFormats(TestUtils.getTestFormats());
 		parser = parserFactory.newFormatParser(config);
 	}
-	
+
 	@Test
 	public final void testEquals() {
 		final Parser<String, SingleTrackAlbumBuilder> p1 = parserFactory.newFormatParserWithDefaultConfiguration();
 		final Parser<String, SingleTrackAlbumBuilder> p2 = parserFactory.newFormatParserWithDefaultConfiguration();
-		assertEquals(p2, p1);
+		assertThat(p1).isEqualTo(p2);
 	}
-	
+
 	private final void testMultiparse(String input) {
 		final Iterable<SingleTrackAlbumBuilder> results = parser.parseAll(input);
-		assertNotNull(results);
+		assertThat(results).isNotNull();
 		System.out.println(input);
 		for(SingleTrackAlbumBuilder result : results) {
 			System.out.println(result.getFormat());
 			System.out.println("Score: " + result.getScore());
-			System.out.println(PrintUtils.track(result.buildTrack()));
+			System.out.println(DMPrintUtils.track(result.buildTrack()));
 		} 
 	}
 
@@ -88,7 +102,7 @@ public class MultiFormatParserTest {
 	public final void testMultiparse() {
 		testMultiparse("Artist1 - Track1 (feat. Artist2)");
 	}
-	
+
 	@Test
 	public final void testMultiParse7() {
 		testMultiparse("A R I Z O N A - Electric Touch (Lyrics _ Lyric Video)");
@@ -101,35 +115,38 @@ public class MultiFormatParserTest {
 		final String title = "This Title Is Awesome";
 		final String ignore = "Ignore me";
 		final String str = String.format("%s - %s (%s)", artist, title, ignore);
-		parser = parserFactory.newFormatParserWithTrackFormats(Arrays.asList(format));
-		final Optional<SingleTrackAlbumBuilder> result = parser.parse(str, SingleTrackAlbumBuilder.create());
-		assertTrue(result.isPresent());
+		parser = parserFactory.newFormatParser(config.withTrackFormats(Arrays.asList(format)));
+		final Optional<SingleTrackAlbumBuilder> result = parser
+				.parse(str, SingleTrackAlbumBuilder.create(factories));
+		assertThat(result.isPresent()).isTrue();
 		final Track track = result.get().buildTrack();
-		assertEquals(artist, Iterables.get(track.getMainArtists(), 0).getName());
-		assertEquals(title, track.getTitle().getTitle());
-		assertEquals(ignore, result.get().getIgnored().get(0));
+		assertThat(Iterables.get(track.getMainArtists(), 0).getName())
+		.isEqualTo(artist);
+		assertThat(track.getTitle().getTitle()).isEqualTo(title);
+		assertThat(result.get().getIgnored().get(0)).isEqualTo(ignore);
 	}
 
 	@Test
 	public final void testCheckSong() throws InvalidSongFormatException {
 		((MultiFormatParser) parser).checkSong(Paths.get("dir", "valid.mp3"));
-		assertTrue(true);
+		assertThat(true).isTrue();
 	}
-	
+
 	@Test(expected = InvalidSongFormatException.class)
 	public final void testCheckSongInvalidSongFormatException() throws InvalidSongFormatException {
 		((MultiFormatParser) parser).checkSong(Paths.get("dir", "invalid.wrongformat"));
 		fail("Should have thrown exception");
 	}
-	
-	
+
+
 	@Test
 	public final void testAmbiguousFormat() {
 		final TrackFormat format = TrackFormat.create("[<GENRE>] - <ARTIST> ft. <FEAT> - <TITLES> (<EXTRA> <VERSION>)");
 		final String ex = "[Progressive] -  Ale Q & Avedon Ft. Jonathan Mendelsohn -  Open My Eyes (Tom Swoon Edit)";
-		parser = parserFactory.newFormatParserWithTrackFormats(Arrays.asList(format));
-		final Optional<SingleTrackAlbumBuilder> result = parser.parse(ex, SingleTrackAlbumBuilder.create());
-		System.out.println(PrintUtils.track(result.get().buildTrack()));
+		parser = parserFactory.newFormatParser(config.withTrackFormats(Arrays.asList(format)));
+		final Optional<SingleTrackAlbumBuilder> result = parser.parse(ex, 
+				SingleTrackAlbumBuilder.create(factories));
+		System.out.println(DMPrintUtils.track(result.get().buildTrack()));
 	}
-	
+
 }

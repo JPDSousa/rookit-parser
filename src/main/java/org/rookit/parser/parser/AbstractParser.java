@@ -23,11 +23,12 @@ package org.rookit.parser.parser;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Optional;
 
 import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.result.Result;
 import org.rookit.parser.utils.ParserValidator;
+
+import com.google.common.base.Optional;
 
 abstract class AbstractParser<T, R extends Result<?>> implements Parser<T, R> {
 

@@ -21,9 +21,9 @@
  ******************************************************************************/
 package org.rookit.parser.parser;
 
-import java.util.function.Function;
-
 import org.rookit.parser.result.Result;
+
+import com.google.common.base.Function;
 
 @SuppressWarnings("javadoc")
 public interface ParserPipeline<I, CI, O extends Result<?>> extends Parser<I, O> {

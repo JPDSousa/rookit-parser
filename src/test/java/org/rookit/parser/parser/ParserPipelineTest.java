@@ -21,15 +21,16 @@
  ******************************************************************************/
 package org.rookit.parser.parser;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.rookit.dm.album.Album;
+import org.rookit.api.dm.album.Album;
+import org.rookit.api.dm.factory.RookitFactories;
+import org.rookit.dm.inject.DMFactoriesModule;
 import org.rookit.dm.test.DMTestFactory;
 import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.parser.ParserFactory;
@@ -37,54 +38,69 @@ import org.rookit.parser.parser.ParserPipeline;
 import org.rookit.parser.result.Result;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
 
+import com.google.common.base.Optional;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 @SuppressWarnings("javadoc")
 public class ParserPipelineTest {
 	
-	private static ParserFactory factory;
 	private static DMTestFactory dataFactory;
+	private static ParserFactory factory;
+	private static RookitFactories factories;
 	
 	@BeforeClass
 	public static final void setup() {
+		final Injector injector = Guice.createInjector(DMTestFactory.getModule(), 
+				new DMFactoriesModule());
 		factory = ParserFactory.create();
-		dataFactory = DMTestFactory.getDefault();
+		factories = injector.getInstance(RookitFactories.class);
+		dataFactory = injector.getInstance(DMTestFactory.class);
+	}
+	
+	private SingleTrackAlbumBuilder getBasicSingleTrackAlbumBuilder() {
+		return SingleTrackAlbumBuilder.create(factories);
 	}
 	
 	@Test 
 	public final void testInputMapping() {
-		final SingleTrackAlbumBuilder baseResult = SingleTrackAlbumBuilder.create();
-		final ParserPipeline<Integer, String, SingleTrackAlbumBuilder> pipeline = factory.newParserPipeline(Integer.class, baseResult)
+		final SingleTrackAlbumBuilder baseResult = getBasicSingleTrackAlbumBuilder();
+		final ParserPipeline<Integer, String, SingleTrackAlbumBuilder> pipeline = factory
+				.newParserPipeline(Integer.class, baseResult)
 				.mapInput(i -> Integer.toString(i));
 		final Integer testInt = 5;
-		assertEquals(Integer.toString(5), pipeline.input2CurrentInput(testInt));
+		assertThat(pipeline.input2CurrentInput(testInt)).isEqualTo(Integer.toString(5));
 	}
 	
 	@Test
 	public final void testBottom() {
 		final ParserConfiguration config = Parser.createConfiguration((Class<? extends Result<?>>) SingleTrackAlbumBuilder.class);
-		final SingleTrackAlbumBuilder baseResult = SingleTrackAlbumBuilder.create();
+		final SingleTrackAlbumBuilder baseResult = getBasicSingleTrackAlbumBuilder();
 		final ParserPipeline<String, String, SingleTrackAlbumBuilder> pipeline = factory.newParserPipeline(String.class, baseResult);
 		final String testStr = "someRandomString";
-		assertNotNull(pipeline);
-		assertEquals(config, pipeline.getConfig());
-		assertEquals(Optional.of(baseResult), pipeline.parse(testStr));
-		assertEquals(Optional.of(baseResult), pipeline.parse(testStr, baseResult));
-		assertEquals(testStr, pipeline.input2CurrentInput(testStr));
-		assertEquals(baseResult, pipeline.parse(testStr).get());
+		assertThat(pipeline).isNotNull();
+		assertThat(pipeline.getConfig()).isEqualTo(config);
+		assertThat(pipeline.parse(testStr)).isEqualTo(Optional.of(baseResult));
+		assertThat(pipeline.parse(testStr, baseResult))
+		.isEqualTo(Optional.of(baseResult));
+		assertThat(pipeline.input2CurrentInput(testStr)).isEqualTo(testStr);
+		assertThat(pipeline.parse(testStr).get()).isEqualTo(baseResult);
 	}
 	
 	@Test
 	public final void testParser() {
 		final Album album = dataFactory.getRandomAlbum();
 		final ParserConfiguration config = Parser.createConfiguration((Class<? extends Result<?>>) SingleTrackAlbumBuilder.class);
-		final Result<Album> baseResult = SingleTrackAlbumBuilder.create();
+		final Result<Album> baseResult = getBasicSingleTrackAlbumBuilder();
 		final ParserPipeline<Album, Album, Result<Album>> pipeline = factory
 				.newParserPipeline(Album.class, baseResult)
 				.insert(createParser(album, config));
 		
-		assertNotNull(pipeline);
-		assertEquals(config, pipeline.getConfig());
-		assertEquals(album, pipeline.parse(album).get().build());
-		assertEquals(album, pipeline.parse(album, baseResult).get().build());
+		assertThat(pipeline).isNotNull();
+		assertThat(pipeline.getConfig()).isEqualTo(config);
+		assertThat(pipeline.parse(album).get().build()).isEqualTo(album);
+		assertThat(pipeline.parse(album, baseResult).get().build())
+		.isEqualTo(album);
 	}
 	
 	@SuppressWarnings("unchecked")

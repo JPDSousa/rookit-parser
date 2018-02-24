@@ -22,12 +22,12 @@
 package org.rookit.parser.parser;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
 
 import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.result.Result;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
 class MapResultPipeline<I, CI, NO extends Result<?>, O extends Result<?>> extends AbstractParserPipeline<I, CI, NO> {
@@ -49,13 +49,13 @@ class MapResultPipeline<I, CI, NO extends Result<?>, O extends Result<?>> extend
 	@Override
 	public Optional<NO> parse(I token) {
 		final Optional<O> baseResult = topParser.parse(token);
-		return Optional.ofNullable(mapper.apply(baseResult.orElse(null)));
+		return baseResult.transform(mapper);
 	}
 
 	@Override
 	public <Z extends Result<?>> Optional<NO> parse(I token, Z baseResult) {
 		final Optional<O> baseResult1 = topParser.parse(token, baseResult);
-		return Optional.ofNullable(mapper.apply(baseResult1.orElse(null)));
+		return baseResult1.transform(mapper);
 	}
 
 	@Override

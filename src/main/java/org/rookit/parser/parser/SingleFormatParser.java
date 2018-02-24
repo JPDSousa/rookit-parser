@@ -23,7 +23,6 @@ package org.rookit.parser.parser;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -31,9 +30,10 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.rookit.mongodb.DBManager;
+import org.rookit.api.storage.DBManager;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
@@ -78,14 +78,14 @@ class SingleFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder>
 	protected Optional<SingleTrackAlbumBuilder> parseFromBaseResult(String token, SingleTrackAlbumBuilder baseResult) {
 		final Tokenizer tokenizer;
 		if(!format.fits(token)) {
-			return Optional.empty();
+			return Optional.absent();
 		}
 		try {
 			baseResult.attachFormat(format);
 			tokenizer = new Tokenizer();
 			tokenize(token, tokenizer, format, format.getDenormalizedSeparators(), format.getFields());
 			if(tokenizer.getFields().size() != format.getFields().size()) {
-				return Optional.empty();
+				return Optional.absent();
 			}
 			for(Field f : tokenizer.keySet()){
 				final List<String> tokens = tokenizer.get(f).stream()
@@ -97,13 +97,14 @@ class SingleFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder>
 			return Optional.of(baseResult);
 		} catch (NumberFormatException e) {
 			VALIDATOR.handleParseException(e);
-			return Optional.empty();
+			return Optional.absent();
 		}
 	}
 
-	private int getScore(Tokenizer tokenizer, TrackFormat format) {
+	private int getScore(final Tokenizer tokenizer, final TrackFormat format) {
 		final DBManager db = getConfig().getDBConnection();
 		final int tokenizerScore = tokenizer.getScore();
+		
 		if(tokenizerScore > 0 && getConfig().isStoreDB()) {
 			final int trackFormatScore = db.getTrackFormatOccurrences(format.toString());
 			final float finalScore = tokenizerScore*getConfig().getTokenizerPercentage() 

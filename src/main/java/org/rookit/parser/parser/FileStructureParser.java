@@ -22,14 +22,16 @@
 package org.rookit.parser.parser;
 
 import java.nio.file.Path;
-import java.util.Optional;
 
-import org.rookit.dm.album.Album;
-import org.rookit.dm.artist.ArtistFactory;
+import org.rookit.api.dm.album.Album;
+import org.rookit.api.dm.artist.factory.ArtistFactory;
+import org.rookit.api.dm.factory.RookitFactories;
 import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.exceptions.UnknownFileSctrutureException;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
 import org.rookit.parser.utils.TrackPath;
+
+import com.google.common.base.Optional;
 
 class FileStructureParser extends AbstractParser<TrackPath, SingleTrackAlbumBuilder> {
 
@@ -95,7 +97,9 @@ class FileStructureParser extends AbstractParser<TrackPath, SingleTrackAlbumBuil
 
 	@Override
 	protected Optional<SingleTrackAlbumBuilder> parseFromBaseResult(TrackPath trackPath, SingleTrackAlbumBuilder baseResult) {
-		final ArtistFactory artistFactory = ArtistFactory.getDefault();
+		final ArtistFactory artistFactory = getConfig().getDBConnection()
+				.getFactories()
+				.getArtistFactory();
 		final String albumName;
 		final String artistName;
 		final String discName;
@@ -127,12 +131,15 @@ class FileStructureParser extends AbstractParser<TrackPath, SingleTrackAlbumBuil
 			return null;
 		}
 
-		return Optional.ofNullable(baseResult);
+		return Optional.fromNullable(baseResult);
 	}
 
 	@Override
 	protected SingleTrackAlbumBuilder getDefaultBaseResult() {
-		return SingleTrackAlbumBuilder.create();
+		final RookitFactories factories = getConfig().getDBConnection().getFactories();
+		return SingleTrackAlbumBuilder.create(
+				factories.getAlbumFactory(), 
+				factories.getTrackFactory());
 	}
 	
 }

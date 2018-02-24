@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.text.RandomStringGenerator;
 
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
@@ -38,6 +38,9 @@ public class TrackPath {
 	public static final String PATHS = "paths";
 	
 	public static final long MAX_DURATION = 20*60*1000;
+	
+	private static final RandomStringGenerator RANDOM_STRING_GENERATOR =
+			new RandomStringGenerator.Builder().build();
 	
 	private static final ParserValidator VALIDATOR = ParserValidator.getDefault();
 
@@ -86,7 +89,7 @@ public class TrackPath {
 	public void updateMP3(Mp3File metadata) {
 		final Path absPath = getAbsolutePath();
 		final Path parentPath = absPath.getParent();
-		final Path randomChildPath = parentPath.resolve(RandomStringUtils.randomAlphanumeric(20));
+		final Path randomChildPath = parentPath.resolve(RANDOM_STRING_GENERATOR.generate(20));
 		try {
 			metadata.save(randomChildPath.toString());
 			Files.delete(absPath);

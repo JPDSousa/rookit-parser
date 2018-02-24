@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.rookit.parser.parser;
 
-
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.rookit.dm.track.TypeTrack;
+import org.rookit.api.dm.track.TypeTrack;
 import org.rookit.parser.exceptions.AmbiguousFormatException;
 import org.rookit.parser.exceptions.InvalidFieldException;
 import org.rookit.parser.exceptions.NoFieldsException;

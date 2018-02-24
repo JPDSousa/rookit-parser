@@ -21,11 +21,11 @@
  ******************************************************************************/
 package org.rookit.parser.parser;
 
-import java.util.Optional;
-
 import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.config.ParsingConfig;
 import org.rookit.parser.result.Result;
+
+import com.google.common.base.Optional;
 
 @SuppressWarnings({ "javadoc" })
 public interface Parser<T, R extends Result<?>> {

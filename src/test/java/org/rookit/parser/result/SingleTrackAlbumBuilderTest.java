@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.rookit.parser.result;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -29,48 +29,70 @@ import java.util.Set;
 
 import org.bson.types.ObjectId;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.rookit.dm.album.Album;
-import org.rookit.dm.artist.Artist;
-import org.rookit.dm.genre.Genre;
-import org.rookit.dm.track.Track;
-import org.rookit.dm.track.TypeTrack;
-import org.rookit.dm.track.TypeVersion;
+import org.rookit.api.dm.album.Album;
+import org.rookit.api.dm.artist.Artist;
+import org.rookit.api.dm.genre.Genre;
+import org.rookit.api.dm.track.Track;
+import org.rookit.api.dm.track.TypeTrack;
+import org.rookit.api.dm.track.TypeVersion;
+import org.rookit.dm.inject.DMFactoriesModule;
 import org.rookit.dm.test.DMTestFactory;
 import org.rookit.parser.result.SingleTrackAlbumBuilder;
 import org.rookit.parser.utils.TestUtils;
 import org.rookit.parser.utils.TrackPath;
 
 import com.google.common.collect.Iterables;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 @SuppressWarnings("javadoc")
 public class SingleTrackAlbumBuilderTest {
 
-	private static final DMTestFactory FACTORY = DMTestFactory.getDefault();
-	private static SingleTrackAlbumBuilder guineaPig;
-	
+	private static DMTestFactory factory;
+	private SingleTrackAlbumBuilder guineaPig;
+
+	@BeforeClass
+	public static void setUpBeforeClass() {
+		final Injector injector = Guice.createInjector(DMTestFactory.getModule(), 
+				new DMFactoriesModule());
+		factory = injector.getInstance(DMTestFactory.class);
+	}
+
 	@Before
 	public void setUp() {
-		guineaPig = SingleTrackAlbumBuilder.create()
-				.withType(FACTORY.getRandomTrackType())
-				.withTitle(FACTORY.randomString())
-				.withTypeVersion(FACTORY.getRandomVersionType())
-				.withVersionArtists(FACTORY.getRandomSetOfArtists())
-				.withMainArtists(FACTORY.getRandomSetOfArtists())
-				.withFeatures(FACTORY.getRandomSetOfArtists())
-				.withProducers(FACTORY.getRandomSetOfArtists())
+		guineaPig = getBasicSingleTrackAlbumBuilder()
+				.withType(factory.getRandomTrackType())
+				.withTitle(factory.randomString())
+				.withTypeVersion(factory.getRandomVersionType())
+				.withVersionArtists(factory.getRandomSetOfArtists())
+				.withMainArtists(factory.getRandomSetOfArtists())
+				.withFeatures(factory.getRandomSetOfArtists())
+				.withProducers(factory.getRandomSetOfArtists())
 				.withPath(TestUtils.getRandomTrackPath())
-				.withDisc(FACTORY.randomString())
+				.withDisc(factory.randomString())
 				.withNumber(1)
-				.withCover(FACTORY.randomString().getBytes())
-				.withAlbum(FACTORY.getRandomAlbum())
+				.withCover(factory.randomString().getBytes())
+				.withAlbum(factory.getRandomAlbum())
 				.withDate(LocalDate.now())
-				.withAlbumTitle(FACTORY.randomString())
-				.withGenres(FACTORY.getRandomSetOfGenres())
-				.withHiddenTrack(FACTORY.randomString());
-		
+				.withAlbumTitle(factory.randomString())
+				.withGenres(factory.getRandomSetOfGenres())
+				.withHiddenTrack(factory.randomString());
+
 	}
-	
+
+
+	@Test 
+	public final void testCreateClone() { 
+		assertThat(guineaPig).isEqualTo(SingleTrackAlbumBuilder.create(guineaPig)); 
+	} 
+
+	@Test(expected = IllegalArgumentException.class) 
+	public final void testCreateCloneFromNull() { 
+		SingleTrackAlbumBuilder.create((SingleTrackAlbumBuilder) null); 
+	} 
+
 	@Test
 	public final void testHashCode() {
 		guineaPig.hashCode();
@@ -78,76 +100,61 @@ public class SingleTrackAlbumBuilderTest {
 	}
 
 	@Test
-	public final void testCreate() {
-		assertNotNull(SingleTrackAlbumBuilder.create());
-	}
-	
-	@Test
-	public final void testCreateClone() {
-		assertEquals(guineaPig, SingleTrackAlbumBuilder.create(guineaPig));
-	}
-	
-	@Test(expected = IllegalArgumentException.class)
-	public final void testCreateCloneFromNull() {
-		SingleTrackAlbumBuilder.create((SingleTrackAlbumBuilder) null);
-	}
-	
-	@Test
 	public final void testType() {
-		final TypeTrack type = FACTORY.getRandomTrackType();
+		final TypeTrack type = factory.getRandomTrackType();
 		guineaPig.withType(type);
-		assertEquals(type, guineaPig.getType());
+		assertThat(guineaPig.getType()).isEqualTo(type);
 	}
-	
+
 	@Test
 	public final void testVersionType() {
-		final SingleTrackAlbumBuilder builder = SingleTrackAlbumBuilder.create();
-		final TypeVersion version = FACTORY.getRandomVersionType();
+		final SingleTrackAlbumBuilder builder = getBasicSingleTrackAlbumBuilder();
+		final TypeVersion version = factory.getRandomVersionType();
 		builder.withTypeVersion(version);
-		assertEquals(version, builder.getTypeVersion());
+		assertThat(builder.getTypeVersion()).isEqualTo(version);
 	}
-	
+
 	@Test
 	public final void testMultipleVersions() {
-		final TypeVersion versionType = FACTORY.getRandomVersionType();
+		final TypeVersion versionType = factory.getRandomVersionType();
 		guineaPig.withTypeVersion(versionType);
-		assertEquals(versionType, guineaPig.getTypeVersion());
+		assertThat(guineaPig.getTypeVersion()).isEqualTo(versionType);
 	}
-	
+
 	@Test
 	public final void testEmptyBuilderValidDisc() {
-		final Album album = FACTORY.getRandomAlbum();
-		final Track track = FACTORY.getRandomOriginalTrack();
+		final Album album = factory.getRandomAlbum();
+		final Track track = factory.getRandomOriginalTrack();
 		final String disc = guineaPig.getDisc();
-		assertNotNull(guineaPig.getDisc());
+		assertThat(guineaPig.getDisc()).isNotNull();
 		album.addTrack(track, 1, disc);
 	}
-	
+
 	@Test
 	public final void testId() {
 		final ObjectId id = new ObjectId();
 		guineaPig.withId(id);
-		assertEquals(id, guineaPig.getId());
+		assertThat(guineaPig.getId()).isEqualTo(id);
 	}
 
 	@Test
 	public final void testBuild() throws IOException {
-		final TypeTrack trackType = FACTORY.getRandomTrackType();
-		final String hiddenTrack = FACTORY.randomString();
-		final String albumTitle = FACTORY.randomString();
-		final String disc = FACTORY.randomString();
-		final String title = FACTORY.randomString();
-		final TypeVersion versionType = FACTORY.getRandomVersionType();
-		final Set<Artist> producers = FACTORY.getRandomSetOfArtists();
-		final Set<Artist> features = FACTORY.getRandomSetOfArtists();
-		final Set<Artist> mainArtists = FACTORY.getRandomSetOfArtists();
-		final Set<Artist> extras = FACTORY.getRandomSetOfArtists();
+		final TypeTrack trackType = factory.getRandomTrackType();
+		final String hiddenTrack = factory.randomString();
+		final String albumTitle = factory.randomString();
+		final String disc = factory.randomString();
+		final String title = factory.randomString();
+		final TypeVersion versionType = factory.getRandomVersionType();
+		final Set<Artist> producers = factory.getRandomSetOfArtists();
+		final Set<Artist> features = factory.getRandomSetOfArtists();
+		final Set<Artist> mainArtists = factory.getRandomSetOfArtists();
+		final Set<Artist> extras = factory.getRandomSetOfArtists();
 		final byte[] cover = title.getBytes();
 		final LocalDate date = LocalDate.now();
-		final Set<Genre> genres = FACTORY.getRandomSetOfGenres();
+		final Set<Genre> genres = factory.getRandomSetOfGenres();
 		final int number = 1;
 		final TrackPath path = TestUtils.getRandomTrackPath();
-		final SingleTrackAlbumBuilder builder = SingleTrackAlbumBuilder.create()
+		final SingleTrackAlbumBuilder builder = getBasicSingleTrackAlbumBuilder()
 				.withType(trackType)
 				.withTitle(title)
 				.withTypeVersion(versionType)
@@ -167,21 +174,27 @@ public class SingleTrackAlbumBuilderTest {
 		final Track track = Iterables.get(album.getTracks(), 0).getTrack();
 		final byte[] actualCover = new byte[title.length()];
 		album.getCover().toInput().read(actualCover);
-		assertEquals(trackType, track.getType());
-		assertEquals(title, track.getTitle().getTitle());
-		assertEquals(mainArtists, track.getMainArtists());
-		assertEquals(features, track.getFeatures());
-		assertEquals(producers, track.getProducers());
-		assertNotNull(album.getTrack(disc, number));
-		assertArrayEquals(cover, actualCover);
-		assertEquals(date, album.getReleaseDate());
-		assertEquals(albumTitle, album.getTitle());
-		assertEquals(genres, album.getAllGenres());
-		assertEquals(hiddenTrack, track.getHiddenTrack());
+		assertThat(track.getType()).isEqualTo(trackType);
+		assertThat(track.getTitle().getTitle()).isEqualTo(title);
+		assertThat(track.getMainArtists()).isEqualTo(mainArtists);
+		assertThat(track.getFeatures()).isEqualTo(features);
+		assertThat(track.getProducers()).isEqualTo(producers);
+		assertThat(album.getTrack(disc, number)).isNotNull();
+		assertThat(actualCover).isEqualTo(cover);
+		assertThat(album.getReleaseDate()).isEqualTo(date);
+		assertThat(album.getTitle()).isEqualTo(albumTitle);
+		assertThat(album.getAllGenres()).containsExactlyInAnyOrderElementsOf(genres);
+		assertThat(track.getHiddenTrack()).isEqualTo(hiddenTrack);
 		if(trackType == TypeTrack.VERSION) {
-			assertEquals(versionType, track.getAsVersionTrack().getVersionType());
-			assertEquals(extras, track.getAsVersionTrack().getVersionArtists());
+			assertThat(track.getAsVersionTrack().getVersionType())
+			.isEqualTo(versionType);
+			assertThat(track.getAsVersionTrack().getVersionArtists())
+			.containsExactlyElementsOf(extras);
 		}
 	}
-	
+
+	private SingleTrackAlbumBuilder getBasicSingleTrackAlbumBuilder() {
+		return SingleTrackAlbumBuilder.create(factory.getFactories());
+	}
+
 }

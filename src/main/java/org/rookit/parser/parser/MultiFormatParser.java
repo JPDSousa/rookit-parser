@@ -23,8 +23,8 @@ package org.rookit.parser.parser;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 
+import org.rookit.api.dm.factory.RookitFactories;
 import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.exceptions.InvalidSongFormatException;
 import org.rookit.parser.exceptions.MissingRequiredFieldException;
@@ -33,7 +33,7 @@ import org.rookit.parser.result.SingleTrackAlbumBuilder;
 import org.rookit.parser.utils.FormatSong;
 import org.rookit.parser.utils.PathUtils;
 
-import com.google.common.collect.Iterables;
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
 import io.reactivex.Observable;
@@ -74,27 +74,30 @@ class MultiFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder> 
 
 	@Override
 	protected Optional<SingleTrackAlbumBuilder> parseFromBaseResult(String token, SingleTrackAlbumBuilder baseResult) {
-		final Iterable<SingleTrackAlbumBuilder> results = parseAllLocal(token, baseResult);
-		return Optional.ofNullable(Iterables.getFirst(results, null));
+		return Optional.fromNullable(
+				parseAllLocal(token, baseResult).firstElement()
+				.blockingGet());
 	}
 
 	@Override
 	public Iterable<SingleTrackAlbumBuilder> parseAll(String path){
-		final Iterable<SingleTrackAlbumBuilder> results =  parseAllLocal(path, getDefaultBaseResult());
-		final int limit = getConfig().getLimit();
-		if(limit > 0) {
-			return Iterables.limit(results, limit);
-		}
-		return results;
+		return parseAll(path, getDefaultBaseResult());
 	}
 
 	@Override
 	public <O extends Result<?>> Iterable<SingleTrackAlbumBuilder> parseAll(String token, O baseResult) {
 		VALIDATOR.checkArgumentClass(getConfig().getResultClass(), baseResult.getClass(), "The base result class is not valid.");
-		return parseAllLocal(token, (SingleTrackAlbumBuilder) baseResult);
+		final int limit = getConfig().getLimit();
+		final Observable<SingleTrackAlbumBuilder> source = parseAllLocal(token, (SingleTrackAlbumBuilder) baseResult);
+		if(limit > 0) {
+			return source
+					.take(limit)
+					.blockingIterable();
+		}
+		return source.blockingIterable();
 	}
 
-	private Iterable<SingleTrackAlbumBuilder> parseAllLocal(String input, SingleTrackAlbumBuilder baseResult) {
+	private Observable<SingleTrackAlbumBuilder> parseAllLocal(String input, SingleTrackAlbumBuilder baseResult) {
 		final String enhancedInput = enhanceInput(input);
 		final List<TrackFormat> formats = getConfig().getFormats();
 		formats.forEach(f -> validateRequiredFields(f));
@@ -105,8 +108,7 @@ class MultiFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder> 
 						.observeOn(scheduler))
 				.filter(Optional::isPresent)
 				.map(Optional::get)
-				.sorted()
-				.blockingIterable();
+				.sorted();
 	}
 
 	public boolean checkSong(Path f) throws InvalidSongFormatException {
@@ -121,6 +123,9 @@ class MultiFormatParser extends AbstractParser<String, SingleTrackAlbumBuilder> 
 
 	@Override
 	protected SingleTrackAlbumBuilder getDefaultBaseResult() {
-		return SingleTrackAlbumBuilder.create();
+		final RookitFactories factories = getConfig().getDBConnection().getFactories();
+		return SingleTrackAlbumBuilder.create(
+				factories.getAlbumFactory(), 
+				factories.getTrackFactory());
 	}
 }

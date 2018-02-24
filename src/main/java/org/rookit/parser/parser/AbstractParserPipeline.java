@@ -21,10 +21,10 @@
  ******************************************************************************/
 package org.rookit.parser.parser;
 
-import java.util.function.Function;
-
 import org.rookit.parser.result.Result;
 import org.rookit.parser.utils.ParserValidator;
+
+import com.google.common.base.Function;
 
 abstract class AbstractParserPipeline<I, CI, R extends Result<?>> implements ParserPipeline<I, CI, R> {
 	

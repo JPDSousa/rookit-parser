@@ -24,15 +24,19 @@
  */
 package org.rookit.parser.parser;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.rookit.api.storage.DBManager;
+import org.rookit.dm.inject.DMFactoriesModule;
+import org.rookit.dm.test.DMTestFactory;
+import org.rookit.mongodb.inject.morphia.MorphiaModule;
 import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.parser.Field;
 import org.rookit.parser.parser.Parser;
@@ -41,19 +45,35 @@ import org.rookit.parser.result.SingleTrackAlbumBuilder;
 import org.rookit.parser.utils.TestUtils;
 import org.rookit.parser.utils.TrackPath;
 
+import com.google.common.base.Optional;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.mpatric.mp3agic.Mp3File;
 
 @SuppressWarnings("javadoc")
 public class TagParserTest {
 
+	private static DMTestFactory factory;
 	private static final ParserFactory PARSER_FACTORY = ParserFactory.create();
-	private static Parser<TrackPath, SingleTrackAlbumBuilder> parser;
+	private static DBManager database;
+	
+	private Parser<TrackPath, SingleTrackAlbumBuilder> parser;
 
+	@BeforeClass
+	public static final void setUpBeforeClass() {
+		final Injector injector = Guice.createInjector(DMTestFactory.getModule(), 
+				new DMFactoriesModule(), new MorphiaModule());
+		factory = injector.getInstance(DMTestFactory.class);
+		database = injector.getInstance(DBManager.class);
+	}
+	
 	@Before
 	public void setUp() {
-		final ParserConfiguration config = Parser.createConfiguration(SingleTrackAlbumBuilder.class);
-		config.withDbStorage(false)
+		final ParserConfiguration config = Parser.createConfiguration(
+				SingleTrackAlbumBuilder.class);
+		config.withDbStorage(true)
 		.withRequiredFields(Field.getRequiredFields())
+		.withDBConnection(database)
 		.withSetDate(true);
 		parser = PARSER_FACTORY.newTagParser(config);
 	}
@@ -65,13 +85,15 @@ public class TagParserTest {
 	public final void testParse() {
 		final TrackPath trackPath = TestUtils.getRandomTrackPath();
 		final Optional<SingleTrackAlbumBuilder> result = parser.parse(trackPath);
-		assertTrue(result.isPresent());
-		assertEquals(trackPath.getDurationMiliSec(), result.get().getDuration().toMillis());
+		assertThat(result.isPresent()).isTrue();
+		assertThat(result.get().getDuration().get().toMillis())
+		.isEqualTo(trackPath.getDurationMiliSec());
 	}
 	
 	@Test
 	public final void testParseNoMetadata() throws IOException {
-		final SingleTrackAlbumBuilder expected = SingleTrackAlbumBuilder.create();
+		final SingleTrackAlbumBuilder expected = SingleTrackAlbumBuilder.create(
+				factory.getFactories());
 		final Path sourcePath = TestUtils.getRandomTrackPath().getPath();
 		final Path targetPath = sourcePath.getParent().resolve("test.mp3");
 		Files.deleteIfExists(targetPath);
@@ -83,8 +105,8 @@ public class TagParserTest {
 		mp3.removeId3v2Tag();
 		trackPath.updateMP3(mp3);
 		final Optional<SingleTrackAlbumBuilder> result = parser.parse(trackPath, expected);
-		assertTrue(result.isPresent());
-		assertEquals(expected, result.get());
+		assertThat(result.isPresent()).isTrue();
+		assertThat(result.get()).isEqualTo(expected);
 		Files.delete(targetPath);
 	}
 
@@ -95,7 +117,7 @@ public class TagParserTest {
 	public final void testEqualsObject() {
 		final Parser<TrackPath, SingleTrackAlbumBuilder> p1 = PARSER_FACTORY.newTagParserWithDefaultConfiguration();
 		final Parser<TrackPath, SingleTrackAlbumBuilder> p2 = PARSER_FACTORY.newTagParserWithDefaultConfiguration();
-		assertEquals(p2, p1);
+		assertThat(p1).isEqualTo(p2);
 	}
 
 }

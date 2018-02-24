@@ -37,22 +37,26 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import org.bson.types.ObjectId;
-import org.rookit.dm.album.Album;
-import org.rookit.dm.album.AlbumFactory;
-import org.rookit.dm.album.TypeRelease;
-import org.rookit.dm.artist.Artist;
-import org.rookit.dm.genre.Genre;
-import org.rookit.dm.genre.Genreable;
-import org.rookit.dm.play.able.Playable;
-import org.rookit.dm.track.Track;
-import org.rookit.dm.track.TrackFactory;
-import org.rookit.dm.track.TypeTrack;
-import org.rookit.dm.track.TypeVersion;
-import org.rookit.dm.track.VersionTrack;
+import org.rookit.api.dm.album.Album;
+import org.rookit.api.dm.album.AlbumFactory;
+import org.rookit.api.dm.album.TypeRelease;
+import org.rookit.api.dm.artist.Artist;
+import org.rookit.api.dm.factory.RookitFactories;
+import org.rookit.api.dm.genre.Genre;
+import org.rookit.api.dm.genre.Genreable;
+import org.rookit.api.dm.play.StaticPlaylist;
+import org.rookit.api.dm.play.able.Playable;
+import org.rookit.api.dm.track.Track;
+import org.rookit.api.dm.track.TypeTrack;
+import org.rookit.api.dm.track.TypeVersion;
+import org.rookit.api.dm.track.VersionTrack;
+import org.rookit.api.dm.track.factory.TrackFactory;
+import org.rookit.api.storage.DBManager;
 import org.rookit.parser.parser.TrackFormat;
 import org.rookit.parser.utils.ParserValidator;
 import org.rookit.parser.utils.TrackPath;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -62,13 +66,21 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	
 	private static final ParserValidator VALIDATOR = ParserValidator.getDefault();
 	
-	public static SingleTrackAlbumBuilder create() {
-		return new SingleTrackAlbumBuilder(AlbumFactory.getDefault(), TrackFactory.getDefault());
+	public static SingleTrackAlbumBuilder create(
+			final AlbumFactory albumFactory,
+			final TrackFactory trackFactory) {
+		return new SingleTrackAlbumBuilder(albumFactory, trackFactory);
+	}
+	
+	public static SingleTrackAlbumBuilder create(RookitFactories factories) {
+		return new SingleTrackAlbumBuilder(
+				factories.getAlbumFactory(), 
+				factories.getTrackFactory());
 	}
 	
 	public static SingleTrackAlbumBuilder create(SingleTrackAlbumBuilder builder) {
 		VALIDATOR.checkArgumentNotNull(builder, "Cannot clone null");
-		final SingleTrackAlbumBuilder clone = create()
+		final SingleTrackAlbumBuilder clone = create(builder.albumFactory, builder.trackFactory)
 				.withId(builder.id)
 				.withType(builder.type)
 				.withTitle(builder.title)
@@ -133,8 +145,11 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	private final AlbumFactory albumFactory;
 	private TrackFormat format;
 	
-	private SingleTrackAlbumBuilder(AlbumFactory albumFactory, TrackFactory trackFactory) {
+	private SingleTrackAlbumBuilder(final AlbumFactory albumFactory, 
+			final TrackFactory trackFactory) {
 		super();
+		VALIDATOR.checkArgumentNotNull(albumFactory, "album factory cannot be null");
+		VALIDATOR.checkArgumentNotNull(trackFactory, "track factory cannot be null");
 		this.trackFactory = trackFactory;
 		this.albumFactory = albumFactory;
 		this.ignored = Lists.newArrayList();
@@ -302,8 +317,8 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	}
 	
 	@Override
-	public Duration getDuration() {
-		return duration;
+	public Optional<Duration> getDuration() {
+		return Optional.fromNullable(duration);
 	}
 
 	public SingleTrackAlbumBuilder withGenres(Set<Genre> genres) {
@@ -739,13 +754,13 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	}
 
 	@Override
-	public LocalDate getLastPlayed() {
-		return lastPlayed;
+	public Optional<LocalDate> getLastPlayed() {
+		return Optional.fromNullable(lastPlayed);
 	}
 
 	@Override
-	public LocalDate getLastSkipped() {
-		return lastSkipped;
+	public Optional<LocalDate> getLastSkipped() {
+		return Optional.fromNullable(lastSkipped);
 	}
 
 	@Override
@@ -833,6 +848,16 @@ public class SingleTrackAlbumBuilder extends AbstractResult<Album> implements Ge
 	@Override
 	public void putExternalMetadata(String arg0, Map<String, Object> arg1) {
 		withExternalMetadata(arg0, arg1);
+	}
+
+	@Override
+	public StaticPlaylist freeze(DBManager db) {
+		return buildTrack().freeze(db);
+	}
+
+	@Override
+	public StaticPlaylist freeze(DBManager db, int limit) {
+		return buildTrack().freeze(db, limit);
 	}
 	
 }

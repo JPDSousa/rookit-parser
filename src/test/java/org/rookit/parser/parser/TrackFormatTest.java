@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.rookit.parser.parser;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +29,7 @@ import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.rookit.dm.track.TypeTrack;
+import org.rookit.api.dm.track.TypeTrack;
 import org.rookit.parser.exceptions.AmbiguousFormatException;
 import org.rookit.parser.exceptions.InvalidFieldException;
 import org.rookit.parser.parser.Field;
@@ -59,27 +59,27 @@ public class TrackFormatTest {
 
 	@Test
 	public final void testTrackFormatString() {
-		assertNotNull(guineaPig);
+		assertThat(guineaPig).isNotNull();
 	}
 
 	@Test
 	public final void testToString() {
 		final TrackFormat clone = TrackFormat.create(guineaPig.toString());
-		assertEquals(guineaPig.toString(), clone.toString());
+		assertThat(clone.toString()).isEqualTo(guineaPig.toString());
 	}
 
 	@Test
 	public final void testGetFormats() {
 		final List<Field> fields = Arrays.asList(Field.ARTIST, Field.TITLES, Field.GENRE);
 		guineaPig = TrackFormat.create(FORMATS[1]);
-		assertEquals(guineaPig.getFields(), fields);
+		assertThat(fields).isEqualTo(guineaPig.getFields());
 	}
 
 	@Test
 	public final void testGetSeparators() {
 		final List<String> seps = Arrays.asList(TrackFormat.SEP_START, " - ", " (", ")");
 		guineaPig = TrackFormat.create(FORMATS[1]);
-		assertEquals(seps, guineaPig.getSeparators());
+		assertThat(guineaPig.getSeparators()).isEqualTo(seps);
 	}
 
 	@Test
@@ -87,10 +87,10 @@ public class TrackFormatTest {
 		List<String> seps;
 		guineaPig = TrackFormat.create(FORMATS[0]);
 		seps = guineaPig.getSeparators();
-		assertEquals(TrackFormat.SEP_START, seps.get(0));
+		assertThat(seps.get(0)).isEqualTo(TrackFormat.SEP_START);
 		guineaPig = TrackFormat.create(FORMATS[3]);
 		seps = guineaPig.getSeparators();
-		assertEquals("feat. ", seps.get(0));
+		assertThat(seps.get(0)).isEqualTo("feat. ");
 	}
 
 	@Test
@@ -98,18 +98,18 @@ public class TrackFormatTest {
 		List<String> seps;
 		guineaPig = TrackFormat.create(FORMATS[0]);
 		seps = guineaPig.getSeparators();
-		assertEquals("]", seps.get(seps.size()-1));
+		assertThat(seps.get(seps.size()-1)).isEqualTo("]");
 		guineaPig = TrackFormat.create(FORMATS[3]);
 		seps = guineaPig.getSeparators();
-		assertEquals(TrackFormat.SEP_END, seps.get(seps.size()-1));
+		assertThat(seps.get(seps.size()-1)).isEqualTo(TrackFormat.SEP_END);
 	}
 
 	@Test
 	public final void testGetTrackClass() {
 		guineaPig = TrackFormat.create(FORMATS[0]);
-		assertEquals(TypeTrack.VERSION, guineaPig.getTrackClass());
+		assertThat(guineaPig.getTrackClass()).isEqualTo(TypeTrack.VERSION);
 		guineaPig = TrackFormat.create(FORMATS[1]);
-		assertEquals(TypeTrack.ORIGINAL, guineaPig.getTrackClass());
+		assertThat(guineaPig.getTrackClass()).isEqualTo(TypeTrack.ORIGINAL);
 	}
 
 	@Test
@@ -119,7 +119,7 @@ public class TrackFormatTest {
 		guineaPig = TrackFormat.create(FORMATS[2]);
 		len = guineaPig.getSeparators().size()-1;
 		guineaPig.appendSep(sep);
-		assertEquals(sep, guineaPig.getSeparators().get(len));
+		assertThat(guineaPig.getSeparators().get(len)).isEqualTo(sep);
 	}
 	
 	@Test
@@ -131,7 +131,7 @@ public class TrackFormatTest {
 		len = guineaPig.getSeparators().size();
 		lastSep = guineaPig.getSeparators().get(len-1);
 		guineaPig.appendSep(sep);
-		assertEquals(lastSep+sep, guineaPig.getSeparators().get(len-1));
+		assertThat(guineaPig.getSeparators().get(len-1)).isEqualTo(lastSep+sep);
 	}
 
 	@Test
@@ -141,7 +141,7 @@ public class TrackFormatTest {
 		guineaPig = TrackFormat.create(FORMATS[0]);
 		len = guineaPig.getFields().size();
 		guineaPig.appendField(field);
-		assertEquals(field, guineaPig.getFields().get(len));
+		assertThat(guineaPig.getFields().get(len)).isEqualTo(field);
 	}
 	
 	@Test(expected = AmbiguousFormatException.class)
@@ -154,31 +154,31 @@ public class TrackFormatTest {
 	public final void testFits() {
 		final String ex = "a - b (c)";
 		guineaPig = TrackFormat.create(FORMATS[1]);
-		assertTrue(guineaPig.fits(ex));
-		assertFalse(guineaPig.fits(ex.substring(3)));
+		assertThat(guineaPig.fits(ex)).isTrue();
+		assertThat(guineaPig.fits(ex.substring(3))).isFalse();
 	}
 
 	@Test
 	public final void testGetMissingRequiredFields() {
 		final Field[] required = {Field.ARTIST, Field.IGNORE};
 		guineaPig = TrackFormat.create(FORMATS[1]);
-		assertEquals(Arrays.asList(Field.IGNORE), guineaPig.getMissingRequiredFields(required));
+		assertThat(guineaPig.getMissingRequiredFields(required)).isEqualTo(Arrays.asList(Field.IGNORE));
 	}
 
 	@Test
 	public final void testEqualsObject() {
 		final TrackFormat f1 = TrackFormat.create(FORMATS[2]);
 		final TrackFormat f2 = TrackFormat.create(FORMATS[2]);
-		assertEquals(f2, f1);
+		assertThat(f1).isEqualTo(f2);
 	}
 
 	@Test
 	public final void testCompareTo() {
 		final TrackFormat f1 = TrackFormat.create(FORMATS[0]);
 		final TrackFormat f2 = TrackFormat.create(FORMATS[1]);
-		assertTrue(f2.compareTo(f1) < 0);
-		assertTrue(f2.compareTo(f2) == 0);
-		assertTrue(f1.compareTo(f2) > 0);
+		assertThat(f2.compareTo(f1) < 0).isTrue();
+		assertThat(f2.compareTo(f2) == 0).isTrue();
+		assertThat(f1.compareTo(f2) > 0).isTrue();
 	}
 	
 	@Test(expected = InvalidFieldException.class)
@@ -208,9 +208,9 @@ public class TrackFormatTest {
 		final String[] testStrings = {Field.ALBUM.toString(),
 				String.format("-a<%s>-r<%s>-ghj", Field.ARTIST.name(), Field.NUMBER.name())};
 		final String field = Field.ARTIST.toString();
-		assertEquals(field, TrackFormat.create(field).toString());
+		assertThat(TrackFormat.create(field).toString()).isEqualTo(field);
 		for(String testString : testStrings){
-			assertEquals("To string should return initial format string", testString, TrackFormat.create(testString).toString());
+			assertThat(TrackFormat.create(testString).toString()).as("To string should return initial format string").isEqualTo(testString);
 		}
 	}
 	
@@ -219,8 +219,12 @@ public class TrackFormatTest {
 		final String sepI = " -";
 		final String sepII = " ";
 		final String field = Field.ARTIST.toString();
-		assertEquals(Arrays.asList(TrackFormat.SEP_START, sepI+sepII), TrackFormat.create(field).appendSep(sepI).appendSep(sepII).getSeparators());
-		assertEquals(Arrays.asList(TrackFormat.SEP_START, sepI+sepII), TrackFormat.create(field+sepI).appendSep(sepII).getSeparators());
+		
+		assertThat(TrackFormat.create(field).appendSep(sepI).appendSep(sepII).getSeparators())
+		.containsExactly(TrackFormat.SEP_START, sepI+sepII);
+		
+		assertThat(TrackFormat.create(field+sepI).appendSep(sepII).getSeparators())
+		.containsExactly(TrackFormat.SEP_START, sepI+sepII);
 	}
 
 }

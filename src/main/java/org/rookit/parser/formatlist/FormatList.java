@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.rookit.mongodb.DBManager;
+import org.rookit.api.storage.DBManager;
 import org.rookit.parser.parser.TrackFormat;
 import org.rookit.utils.resource.Resources;
 

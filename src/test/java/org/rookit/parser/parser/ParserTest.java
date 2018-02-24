@@ -21,10 +21,10 @@
  ******************************************************************************/
 package org.rookit.parser.parser;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
-import org.rookit.dm.test.DMTestFactory;
 import org.rookit.parser.parser.Parser;
 import org.rookit.parser.result.Result;
 
@@ -34,7 +34,7 @@ public class ParserTest {
 	
 	@Test
 	public final void testCreateConfig() {
-		assertNotNull(Parser.createConfiguration(SomeRandomResult.class));
+		assertThat(Parser.createConfiguration(SomeRandomResult.class)).isNotNull();
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
@@ -46,7 +46,7 @@ public class ParserTest {
 
 		@Override
 		public String build() {
-			return DMTestFactory.getDefault().randomString();
+			return RandomStringUtils.random(20);
 		}
 
 		@Override

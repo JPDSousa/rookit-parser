@@ -21,11 +21,11 @@
  ******************************************************************************/
 package org.rookit.parser.parser;
 
-import java.util.Optional;
-import java.util.function.Function;
-
 import org.rookit.parser.config.ParserConfiguration;
 import org.rookit.parser.result.Result;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
 
 class MapInputPipeline<I, CI, O extends Result<?>> extends AbstractParserPipeline<I, CI, O> {
 
