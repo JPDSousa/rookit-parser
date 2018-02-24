@@ -2,12 +2,27 @@ language: java
 install: true
 jdk:
   - oraclejdk8
+  - oraclejdk9
+  - openjdk8
+addons:
+  apt:
+    sources:
+      - mongodb-upstart
+      - mongodb-3.4-precise
+    packages:
+      - mongodb-org-server
+      - mongodb-org-shell
 notifications:
   email:
     recipients:
       - jpd.sousa@campus.fct.unl.pt
     on_success: never # default: change
     on_failure: always # default: always
+before_script:
+  - mkdir db
+  - ls
+  - mongod --dbpath db --fork --logpath mongodb.log --port 27020
+  - sleep 15
 
 script: 
   - mvn clean verify
